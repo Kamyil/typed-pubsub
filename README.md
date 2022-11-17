@@ -1,6 +1,6 @@
 # Typed PubSub
 
-Know what events you can publish             |  Know what data you will receive after subscribing to specific event
+Know the events you can publish             |  Know the data you will receive after subscribing to specific event
 :-------------------------:|:-------------------------:
   <img width="500" alt="Zrzut ekranu 2022-11-17 o 02 01 48" src="https://user-images.githubusercontent.com/26087070/202500892-2eed5ed1-c0de-4e4c-bf7c-3a7fbea3c00d.png">  |    <img width="500" alt="Zrzut ekranu 2022-11-17 o 02 02 52" src="https://user-images.githubusercontent.com/26087070/202501002-05133f4b-7de6-42ab-af24-69b04ae30d71.png">
   
