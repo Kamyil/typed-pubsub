@@ -4,14 +4,16 @@
   - [How to use it?](#how-to-use-it)
   - [Do I have to declare values on initialisation?](#do-i-have-to-declare-values-on-initialisation)
   - [Optional logging](#optional-logging)
-  - [JavaScript only](#javascript-only)
-- [What is PubSub?](#what-is-pubsub)
-- [I would like to extend the functionality of it](#i-would-like-to-extend-the-functionality-of-it)
+  - [Using it with JavaScript](#using-it-with-javascript)
+  - [What is PubSub?](#what-is-pubsub)
+  - [In which way this library is blazingly fast?](#in-which-way-this-library-is-blazingly-fast)
+  - [I would like to extend the functionality of it](#i-would-like-to-extend-the-functionality-of-it)
+  - [How to unsubscribe?](#how-to-unsubscribe)
 
-Typical **PubSub**, **EventBus**, **EventEmitter** (whatever you call it), that you can expect, but **fully** and **hardly** typed with full type inference, which means that you will be able to get all autocomplete and autovalidation
+Typical **PubSub**, **EventBus**, **EventEmitter** (whatever you call it), that you can expect, **fully** and **hardly** typed with full type inference, which means that you will be able to get all autocomplete and autovalidation. Also it's scalable, very-performant and **bLaZiNgLy-fASt**
 TypeScript features in your typical PubSub. **Zero dependencies**
 
-Realistically speaking - the code is so small that you can even copy it from `index.ts` file and it will work. But of course I will appreciate if someone would decide to install it via NPM 😅
+Realistically speaking - the code is so small that you can even copy it from `index.ts` file and it will work. But of course I will appreciate if someone would decide to install it via NPM 😅 or give it a star on GitHub
 
 NPM: <https://www.npmjs.com/package/@kamyil/typed-pubsub>
 
@@ -79,19 +81,8 @@ type TEvents = {
   'lastName:changed': string
 }
 
-const Events: TEvents = {
-  "user:registered": {
-    firstName: "",
-    lastName: "",
-    age: 0
-  },
-  "age:changed": 0,
-  "firstName:changed": "",
-  "lastName:changed": ""
-};
-
 const pubSub = new PubSub<TEvents>({ 
-  events: Events 
+  events: {} as TEvents
 });
 ```
 
@@ -108,17 +99,46 @@ const pubSub = new PubSub({
 });
 ```
 
-## JavaScript only
+## Using it with JavaScript
 
 You can also use this library in normal JavaScript files. If you're using VSCode, you should also have type-checking enabled by default, even in JS files
 
-# What is PubSub?
+## What is PubSub?
 
-`PubSub` is extremely common `publish-subscribe` design pattern that allows you to listen on specific events and retrieve data. Every time you call the `.publish()` of specific event with some data passed in there, every listener to that event will receive the call and the data you've passed
+`PubSub` is extremely common `publish-subscribe` design pattern that allows you to listen on specific events and retrieve data. Every time you call the `.publish()` of specific event with some data passed in there, every listener to that event will receive the call and the data you've passed.
 You can get more info about this here:
 <https://www.enjoyalgorithms.com/blog/publisher-subscriber-pattern>
 
-# I would like to extend the functionality of it
+## In which way this library is blazingly fast?
+
+1. In compare to other PubSub libraries, this one does not store event listeners in the `Map`, `Array` or `Set` but simple object instead with this model:
+
+```ts
+{
+  'event1': {
+    1: { eventHandler: someSpecificCallback },
+    2: { eventHandler: differentCallback },
+    // etc.
+  },
+  'event2': {
+    1: { eventHandler: someSpecificCallback },
+    2: { eventHandler: differentCallback },
+    // etc.
+  }
+  // etc.
+}
+```
+It's made this way, because objects are the best store dictionaries for performing heavy reads, since JavaScript engines compile them down
+to C++ classes which later are being cached.
+As it's stated here: https://stackoverflow.com/a/49164774
+
+`So if you have a write-once read-heavy workload with string keys then you can use an object as a high-performance dictionary`
+
+Since PubSub is a pattern where there are not a lot of writes, but there is actually a heavy reading (by using string keys) from it, object seems to be a perfect fit
+
+2. Also getting all subscribed event listeners is not performed by using `Array.filter()` or `Array.find()` but rather by pointing directly into concrete object, where eventName is a key. So there are no unnecessary loops going on while finding all subscribed event listeners
+
+## I would like to extend the functionality of it
 
 Since it's a simple class, you can easily extend it by using an `extends` keyword
 
@@ -130,3 +150,19 @@ export class CustomPubSub extends PubSub {
   }
 }
 ```
+
+## How to unsubscribe?
+
+Every `subscribe()` call returns an `unsubscribe()` function
+
+```ts
+  const pubSub = new PubSub({events: {testEvent: ''}});
+
+  // you can name it whatever you want
+  const unsubscribeTestEvent = pubSub.subscribe('testEvent', () => { /* ... */ });
+
+  // and you can call it whenever you want
+  unsubscribeTestEvent();
+```
+It's made this way, because this returned unsubsribe function contain id of given event listener
+so it's the most proper way to remove this specific listener from the memory
