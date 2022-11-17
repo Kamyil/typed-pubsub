@@ -54,6 +54,11 @@ const pubSub = new PubSub({
 4. And voilá! You have your PubSub up and running.
 You can start publishing the events and subscribing to them. With all types auto-infered
 
+<img width="853" alt="Zrzut ekranu 2022-11-17 o 02 01 42" src="https://user-images.githubusercontent.com/26087070/202328615-022efc76-d616-4723-acf4-b377ee639ce2.png">
+<img width="853" alt="Zrzut ekranu 2022-11-17 o 02 01 48" src="https://user-images.githubusercontent.com/26087070/202328607-daac95aa-c63c-41b2-a04b-e0703c159732.png">
+<img width="853" alt="Zrzut ekranu 2022-11-17 o 02 02 09" src="https://user-images.githubusercontent.com/26087070/202328599-2e27b83f-e850-4ad7-9d2f-084e05269ced.png">
+<img width="853" alt="Zrzut ekranu 2022-11-17 o 02 02 52" src="https://user-images.githubusercontent.com/26087070/202328590-d9afa4e1-660f-4175-abed-f20ccc34e9c2.png">
+
 ## Do I have to declare values on initialisation?
 
 You actually don't. Those values just helps TypeScript to infer
