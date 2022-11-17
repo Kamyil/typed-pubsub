@@ -13,10 +13,10 @@ var PubSub = /** @class */ (function () {
             this.logs = logs;
     }
     PubSub.prototype.publish = function (eventName, data) {
-        var amountOfListenersOfThisEvent = Object.keys(this.listeners[eventName]).length;
-        if (amountOfListenersOfThisEvent !== 0) {
-            for (var id = 1; id <= amountOfListenersOfThisEvent; id++) {
-                this.listeners[eventName][id].eventHandler(data);
+        var listenersOfThisEvent = this.listeners[eventName];
+        if (Object.keys(listenersOfThisEvent).length !== 0) {
+            for (var listener in listenersOfThisEvent) {
+                listenersOfThisEvent[listener].eventHandler(data);
             }
         }
         else {
@@ -26,19 +26,23 @@ var PubSub = /** @class */ (function () {
         }
     };
     PubSub.prototype.subscribe = function (eventName, eventHandler) {
+        var _this = this;
         var listenersOfThisEvent = this.listeners[eventName];
+        var newListenerIndex;
         if (listenersOfThisEvent) {
-            var newListenerIndex = Number(Object.keys(listenersOfThisEvent).length + 1);
-            listenersOfThisEvent[newListenerIndex] = {
-                eventHandler: eventHandler
-            };
+            newListenerIndex = Number(Object.keys(listenersOfThisEvent).length + 1);
         }
         else {
+            newListenerIndex = 1;
             this.listeners[eventName] = {};
-            this.listeners[eventName][1] = {
-                eventHandler: eventHandler
-            };
         }
+        this.listeners[eventName][newListenerIndex] = {
+            eventHandler: eventHandler
+        };
+        var unsubscribeHandler = function () {
+            delete _this.listeners[eventName][newListenerIndex];
+        };
+        return unsubscribeHandler;
     };
     return PubSub;
 }());
