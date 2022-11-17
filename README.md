@@ -10,6 +10,8 @@ Typical **PubSub**, **EventBus**, **EventEmitter** (whatever you call it), that 
 that you will be able to get all autocomplete and autovalidation
 TypeScript features in your typical PubSub
 
+NPM: https://www.npmjs.com/package/@kamyil/typed-pubsub
+
 ## How to use it?
 
 1. Simply import `PubSub` from package *(since it's named import, VSCode WebStorm and other IDEs should be able to auto-import it easily)*
