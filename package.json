@@ -1,0 +1,15 @@
+{
+  "name": "typed-pubsub",
+  "private": false,
+  "version": "0.0.1",
+  "author": "Kamil Kseń",
+  "license": "MIT",
+  "keywords": ["pubsub", "PubSub", "EventBus", "EventEmitter", "typed", "hardly-typed", "fully-typed"],
+  "main": "index.js",
+  "scripts": {
+    "compile": "tsc index.ts"
+  },
+  "devDependencies": {
+    "typescript": "4.6.4"
+  }
+}
