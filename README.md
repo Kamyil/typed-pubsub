@@ -12,14 +12,16 @@ Realistically speaking - the code is so small that you can even copy it from `in
 NPM: <https://www.npmjs.com/package/@kamyil/typed-pubsub>
 
 
-- [How to use it?](#how-to-use-it)
-- [Do I have to declare values on initialisation?](#do-i-have-to-declare-values-on-initialisation)
-- [Optional logging](#optional-logging)
-- [Using it with JavaScript](#using-it-with-javascript)
-- [What is PubSub?](#what-is-pubsub)
-- [In which way this library is blazingly fast?](#in-which-way-this-library-is-blazingly-fast)
-- [I would like to extend the functionality of it](#i-would-like-to-extend-the-functionality-of-it)
-- [How to unsubscribe?](#how-to-unsubscribe)
+- [Typed PubSub](#typed-pubsub)
+  - [How to use it?](#how-to-use-it)
+  - [Do I have to declare values on initialisation?](#do-i-have-to-declare-values-on-initialisation)
+  - [Optional logging](#optional-logging)
+  - [Using it with JavaScript](#using-it-with-javascript)
+  - [What is PubSub?](#what-is-pubsub)
+  - [In which way this library is blazingly fast?](#in-which-way-this-library-is-blazingly-fast)
+  - [I would like to extend the functionality of it](#i-would-like-to-extend-the-functionality-of-it)
+  - [How to unsubscribe?](#how-to-unsubscribe)
+  - [Performance test](#performance-test)
 
 ## How to use it?
 
@@ -170,3 +172,6 @@ Every `subscribe()` call returns an `unsubscribe()` function
 ```
 It's made this way, because this returned unsubsribe function contain id of given event listener
 so it's the most proper way to remove this specific listener from the memory
+
+## Performance test
+Check this link: https://stackblitz.com/edit/typescript-v2k7gx?file=index.ts
