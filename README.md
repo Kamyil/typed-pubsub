@@ -5,6 +5,8 @@
   - [Do I have to declare values on initialisation?](#do-i-have-to-declare-values-on-initialisation)
   - [Optional logging](#optional-logging)
   - [JavaScript only](#javascript-only)
+- [What is PubSub?](#what-is-pubsub)
+- [I would like to extend the functionality of it](#i-would-like-to-extend-the-functionality-of-it)
 
 Typical **PubSub**, **EventBus**, **EventEmitter** (whatever you call it), that you can expect, but **fully** and **hardly** typed which means
 that you will be able to get all autocomplete and autovalidation
@@ -12,7 +14,7 @@ TypeScript features in your typical PubSub. **Zero dependencies**
 
 Realistically speaking - the code is so small that you can even copy it from `index.ts` file and it will work. But of course I will appreciate if someone would decide to install it via NPM 😅
 
-NPM: https://www.npmjs.com/package/@kamyil/typed-pubsub
+NPM: <https://www.npmjs.com/package/@kamyil/typed-pubsub>
 
 ## How to use it?
 
@@ -110,3 +112,24 @@ const pubSub = new PubSub({
 ## JavaScript only
 
 You can also use this library in normal JavaScript files. If you're using VSCode, you should also have type-checking enabled by default, even in JS files
+
+# What is PubSub?
+
+`PubSub` is extremely common `publish-subscribe` design pattern that allows you to listen on specific events and retrieve data. Every time you call the `.publish()` of specific event with some data passed in there, every listener to that event will receive the call and the data you've passed
+You can get more info about this here:
+<https://www.enjoyalgorithms.com/blog/publisher-subscriber-pattern>
+
+...so you can match it to whatever name you want :)
+
+# I would like to extend the functionality of it
+
+Since it's a simple class, you can easily extend it by using an `extends` keyword
+
+```ts
+export class CustomPubSub extends PubSub {
+  someNewProperty = '';
+  someNewFuntionality() {
+    // ...
+  }
+}
+```
