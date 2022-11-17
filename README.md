@@ -1,21 +1,25 @@
 # Typed PubSub
 
-- [Typed PubSub](#typed-pubsub)
-  - [How to use it?](#how-to-use-it)
-  - [Do I have to declare values on initialisation?](#do-i-have-to-declare-values-on-initialisation)
-  - [Optional logging](#optional-logging)
-  - [Using it with JavaScript](#using-it-with-javascript)
-  - [What is PubSub?](#what-is-pubsub)
-  - [In which way this library is blazingly fast?](#in-which-way-this-library-is-blazingly-fast)
-  - [I would like to extend the functionality of it](#i-would-like-to-extend-the-functionality-of-it)
-  - [How to unsubscribe?](#how-to-unsubscribe)
-
-Typical **PubSub**, **EventBus**, **EventEmitter** (whatever you call it), that you can expect, **fully** and **hardly** typed with full type inference, which means that you will be able to get all autocomplete and autovalidation. Also it's scalable, very-performant and **bLaZiNgLy-fASt**
-TypeScript features in your typical PubSub. **Zero dependencies**
+Know what events you can publish             |  Know what data you will receive after subscribing to specific event
+:-------------------------:|:-------------------------:
+  <img width="500" alt="Zrzut ekranu 2022-11-17 o 02 01 48" src="https://user-images.githubusercontent.com/26087070/202500892-2eed5ed1-c0de-4e4c-bf7c-3a7fbea3c00d.png">  |    <img width="500" alt="Zrzut ekranu 2022-11-17 o 02 02 52" src="https://user-images.githubusercontent.com/26087070/202501002-05133f4b-7de6-42ab-af24-69b04ae30d71.png">
+  
+Typical **PubSub**, **EventBus**, **EventEmitter** (whatever you call it), that you can expect, but **fully** and **hardly** typed with full type inference, which means that you will be able to get all autocomplete and autovalidation. 
+Also it's scalable, very-performant and **bLaZiNgLy-fASt** with **Zero dependencies**
 
 Realistically speaking - the code is so small that you can even copy it from `index.ts` file and it will work. But of course I will appreciate if someone would decide to install it via NPM 😅 or give it a star on GitHub
 
 NPM: <https://www.npmjs.com/package/@kamyil/typed-pubsub>
+
+
+- [How to use it?](#how-to-use-it)
+- [Do I have to declare values on initialisation?](#do-i-have-to-declare-values-on-initialisation)
+- [Optional logging](#optional-logging)
+- [Using it with JavaScript](#using-it-with-javascript)
+- [What is PubSub?](#what-is-pubsub)
+- [In which way this library is blazingly fast?](#in-which-way-this-library-is-blazingly-fast)
+- [I would like to extend the functionality of it](#i-would-like-to-extend-the-functionality-of-it)
+- [How to unsubscribe?](#how-to-unsubscribe)
 
 ## How to use it?
 
