@@ -119,8 +119,6 @@ You can also use this library in normal JavaScript files. If you're using VSCode
 You can get more info about this here:
 <https://www.enjoyalgorithms.com/blog/publisher-subscriber-pattern>
 
-...so you can match it to whatever name you want :)
-
 # I would like to extend the functionality of it
 
 Since it's a simple class, you can easily extend it by using an `extends` keyword
