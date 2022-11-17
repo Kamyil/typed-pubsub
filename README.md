@@ -8,8 +8,7 @@
 - [What is PubSub?](#what-is-pubsub)
 - [I would like to extend the functionality of it](#i-would-like-to-extend-the-functionality-of-it)
 
-Typical **PubSub**, **EventBus**, **EventEmitter** (whatever you call it), that you can expect, but **fully** and **hardly** typed which means
-that you will be able to get all autocomplete and autovalidation
+Typical **PubSub**, **EventBus**, **EventEmitter** (whatever you call it), that you can expect, but **fully** and **hardly** typed with full type inference, which means that you will be able to get all autocomplete and autovalidation
 TypeScript features in your typical PubSub. **Zero dependencies**
 
 Realistically speaking - the code is so small that you can even copy it from `index.ts` file and it will work. But of course I will appreciate if someone would decide to install it via NPM 😅
