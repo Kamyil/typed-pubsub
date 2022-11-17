@@ -3,8 +3,8 @@ exports.__esModule = true;
 exports.PubSub = void 0;
 var PubSub = /** @class */ (function () {
     function PubSub(_a) {
-        var events = _a.events, logs = _a.logs;
-        this.listeners = [];
+        var events = _a.events, _b = _a.logs, logs = _b === void 0 ? false : _b;
+        this.listeners = {};
         if (events)
             this.events = events;
         else
@@ -13,9 +13,11 @@ var PubSub = /** @class */ (function () {
             this.logs = logs;
     }
     PubSub.prototype.publish = function (eventName, data) {
-        var listeners = this.listeners.filter(function (listener) { return listener.subscribedEventName === eventName; });
-        if (listeners.length !== 0) {
-            listeners.forEach(function (listener) { return listener.eventHandler(data); });
+        var amountOfListenersOfThisEvent = Object.keys(this.listeners[eventName]).length;
+        if (amountOfListenersOfThisEvent !== 0) {
+            for (var id = 1; id <= amountOfListenersOfThisEvent; id++) {
+                this.listeners[eventName][id].eventHandler(data);
+            }
         }
         else {
             if (this.logs) {
@@ -24,10 +26,19 @@ var PubSub = /** @class */ (function () {
         }
     };
     PubSub.prototype.subscribe = function (eventName, eventHandler) {
-        this.listeners.push({
-            subscribedEventName: eventName,
-            eventHandler: eventHandler
-        });
+        var listenersOfThisEvent = this.listeners[eventName];
+        if (listenersOfThisEvent) {
+            var newListenerIndex = Number(Object.keys(listenersOfThisEvent).length + 1);
+            listenersOfThisEvent[newListenerIndex] = {
+                eventHandler: eventHandler
+            };
+        }
+        else {
+            this.listeners[eventName] = {};
+            this.listeners[eventName][1] = {
+                eventHandler: eventHandler
+            };
+        }
     };
     return PubSub;
 }());
