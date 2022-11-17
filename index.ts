@@ -1,3 +1,5 @@
+type UnsubscribeFunction = () => void;
+
 export class PubSub<Events> {
   protected listeners: Record<string, {[id: number]: {
     eventHandler: (data: any) => void;
@@ -15,15 +17,18 @@ export class PubSub<Events> {
     if (logs) this.logs = logs;
   }
 
-  publish<EventName extends keyof Events, EventData extends Events[EventName]>(
+  publish<
+    EventName extends keyof Events, 
+    EventData extends Events[EventName]
+  >(
     eventName: EventName,
     data?: EventData
-  ): void | Error {
-    const amountOfListenersOfThisEvent = Object.keys(this.listeners[eventName as string]).length;
+  ): void {
+    const listenersOfThisEvent = this.listeners[eventName as string];
 
-    if (amountOfListenersOfThisEvent !== 0) {
-      for (let id = 1; id <= amountOfListenersOfThisEvent; id++) {
-        this.listeners[eventName as string][id].eventHandler(data);
+    if (Object.keys(listenersOfThisEvent).length !== 0) {
+      for (let listener in listenersOfThisEvent) {
+        listenersOfThisEvent[listener].eventHandler(data);
       }
     } else {
       if (this.logs) {
@@ -35,19 +40,25 @@ export class PubSub<Events> {
   subscribe<
     EventName extends keyof Events,
     EventData extends Events[EventName]
-  >(eventName: EventName, eventHandler: (data: EventData) => void): void {
+  >(eventName: EventName, eventHandler: (data: EventData) => void): UnsubscribeFunction {
     let listenersOfThisEvent = this.listeners[eventName as string];
+    let newListenerIndex: number;
 
     if (listenersOfThisEvent) {
-      const newListenerIndex = Number(Object.keys(listenersOfThisEvent).length + 1);
-      listenersOfThisEvent[newListenerIndex] = {
-        eventHandler: eventHandler
-      };
+      newListenerIndex = Number(Object.keys(listenersOfThisEvent).length + 1);
     } else {
+      newListenerIndex = 1;
       this.listeners[eventName as string] = {};
-      this.listeners[eventName as string][1] = {
-        eventHandler: eventHandler
-      };
-    } 
+    }
+
+    this.listeners[eventName as string][newListenerIndex] = {
+      eventHandler: eventHandler
+    };
+
+    const unsubscribeHandler = () => {
+      delete this.listeners[eventName as string][newListenerIndex];
+    };
+    
+    return unsubscribeHandler;
   }
 }
