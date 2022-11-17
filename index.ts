@@ -1,11 +1,10 @@
 export class PubSub<Events> {
-  private listeners: {
-    subscribedEventName: keyof Events;
+  protected listeners: Record<string, {[id: number]: {
     eventHandler: (data: any) => void;
-  }[] = [];
+  }}> = {};
   protected events!: Events;
-  private logs!: boolean;
-
+  protected logs!: boolean;
+  
   constructor({ events, logs = false }: { events: Events; logs?: boolean }) {
     if (events) this.events = events;
     else
@@ -18,13 +17,14 @@ export class PubSub<Events> {
 
   publish<EventName extends keyof Events, EventData extends Events[EventName]>(
     eventName: EventName,
-    data: EventData
+    data?: EventData
   ): void | Error {
-    const listeners = this.listeners.filter(
-      (listener) => listener.subscribedEventName === eventName
-    );
-    if (listeners.length !== 0) {
-      listeners.forEach((listener) => listener.eventHandler(data));
+    const amountOfListenersOfThisEvent = Object.keys(this.listeners[eventName as string]).length;
+
+    if (amountOfListenersOfThisEvent !== 0) {
+      for (let id = 1; id <= amountOfListenersOfThisEvent; id++) {
+        this.listeners[eventName as string][id].eventHandler(data);
+      }
     } else {
       if (this.logs) {
         console.log(`No listeners found for eventName: ${String(eventName)}`);
@@ -36,9 +36,18 @@ export class PubSub<Events> {
     EventName extends keyof Events,
     EventData extends Events[EventName]
   >(eventName: EventName, eventHandler: (data: EventData) => void): void {
-    this.listeners.push({
-      subscribedEventName: eventName,
-      eventHandler,
-    });
+    let listenersOfThisEvent = this.listeners[eventName as string];
+
+    if (listenersOfThisEvent) {
+      const newListenerIndex = Number(Object.keys(listenersOfThisEvent).length + 1);
+      listenersOfThisEvent[newListenerIndex] = {
+        eventHandler: eventHandler
+      };
+    } else {
+      this.listeners[eventName as string] = {};
+      this.listeners[eventName as string][1] = {
+        eventHandler: eventHandler
+      };
+    } 
   }
 }
