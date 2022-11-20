@@ -9,8 +9,8 @@ Also it's scalable, very-performant and **bLaZiNgLy-fASt** with **Zero dependenc
 
 Realistically speaking - the code is so small that you can even copy it from `index.ts` file and it will work. But of course I will appreciate if someone would decide to install it via NPM 😅 or give it a star on GitHub
 
-NPM: <https://www.npmjs.com/package/@kamyil/typed-pubsub>
-
+**NPM**: <https://www.npmjs.com/package/@kamyil/typed-pubsub>
+**GitHub**: <https://github.com/Kamyil/typed-pubsub>
 
 - [Typed PubSub](#typed-pubsub)
   - [How to use it?](#how-to-use-it)
