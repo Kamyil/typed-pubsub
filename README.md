@@ -23,8 +23,9 @@ Realistically speaking - the code is so small that you can even copy it from `in
   - [In which way this library is blazingly fast?](#in-which-way-this-library-is-blazingly-fast)
   - [I would like to extend the functionality of it](#i-would-like-to-extend-the-functionality-of-it)
   - [How to unsubscribe?](#how-to-unsubscribe)
-  - [Subscribe for one event publish only](#subscribe-for-one-event-publish-only)
+  - [I want to subscribe for one event publish only](#i-want-to-subscribe-for-one-event-publish-only)
   - [I want to remove/clear all subscribers](#i-want-to-removeclear-all-subscribers)
+  - [I want to remove subscribers from specific event](#i-want-to-remove-subscribers-from-specific-event)
 
 ## How to use it?
 
@@ -130,7 +131,7 @@ You can get more info about this here:
 
 ## In which way this library is blazingly fast?
 
-1. In compare to other PubSub libraries, this one does not store event listeners in the `Map`, `Array` or `Set` but simple object instead with this model:
+1. In compare to other PubSub libraries, this one does not store event listeners in the `Map`, `Array` or `Set` but simple object instead with following model:
 
 ```ts
 {
@@ -186,7 +187,8 @@ Every `subscribe()` call returns an `unsubscribe()` function
 It's made this way, because this returned unsubsribe function contains id of given event listener
 so it's the most proper way to remove this specific listener from the memory
 
-## Subscribe for one event publish only
+## I want to subscribe for one event publish only
+ 
 You can also set a subscribe listener for only one event publish if needed
 
 ```ts
@@ -197,8 +199,17 @@ pubSub.subscribeForOnePublishOnly('testEvent', (data) => {/** some callback with
 
 ## I want to remove/clear all subscribers
 
-You can do it by using `clearAllListeners()` method
+You can do it by using `removeAllSubscribers()` method
 
 ```ts
-pubSub.clearAllListeners();
+pubSub.removeAllSubscribers();
+```
+
+## I want to remove subscribers from specific event
+You can do it by using `removeAllSubscribersFromEvent(eventName)` method,
+where you can pass the event name as parameter and it will remove all listeners
+of that event
+
+```ts
+pubSub.removeAllSubscribers('name of your event');
 ```
