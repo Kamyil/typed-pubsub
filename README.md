@@ -211,5 +211,5 @@ where you can pass the event name as parameter and it will remove all listeners
 of that event
 
 ```ts
-pubSub.removeAllSubscribers('name of your event');
+pubSub.removeAllSubscribersFromEvent('name of your event');
 ```
