@@ -15,13 +15,15 @@ Realistically speaking - the code is so small that you can even copy it from `in
 - [Typed PubSub](#typed-pubsub)
   - [How to use it?](#how-to-use-it)
   - [Do I have to declare values on initialisation?](#do-i-have-to-declare-values-on-initialisation)
+  - [... so do the values even matter?](#-so-do-the-values-even-matter)
+  - [Performance test](#performance-test)
   - [Optional logging](#optional-logging)
   - [Using it with JavaScript](#using-it-with-javascript)
   - [What is PubSub?](#what-is-pubsub)
   - [In which way this library is blazingly fast?](#in-which-way-this-library-is-blazingly-fast)
   - [I would like to extend the functionality of it](#i-would-like-to-extend-the-functionality-of-it)
   - [How to unsubscribe?](#how-to-unsubscribe)
-  - [Performance test](#performance-test)
+  - [Subscribe for one event only](#subscribe-for-one-event-only)
 
 ## How to use it?
 
@@ -94,6 +96,16 @@ const pubSub = new PubSub<TEvents>({
 
 **But remember that you don't need to do it, since TypeScript will nicely auto infer everything from your usage :)**
 
+## ... so do the values even matter?
+**Their only role and purpose is to give TypeScript informations to infer, to allow you to have nice type checking, type inference, error validation and autocompletion.**
+As mentioned in previous point, you can even pass the empty object there and it will work in the runtime, but you will loose all of those convinient TypeScript features.
+If you prefer to declare events and data model as a types - not runtime values, you can declare them like in example in previous point:
+[Do I have to declare values on initialisation?](#do-i-have-to-declare-values-on-initialisation)
+
+## Performance test
+You can check how this library is performing by checking this link: https://stackblitz.com/edit/typescript-v2k7gx?file=index.ts
+Test essentially creates new subscriber on every 10ms, while updating value to all subscribers on every 20ms
+
 ## Optional logging
 
 For debugging purposes you can enable non-verbose logs
@@ -107,7 +119,7 @@ const pubSub = new PubSub({
 
 ## Using it with JavaScript
 
-You can also use this library in normal JavaScript files. If you're using VSCode, you should also have type-checking enabled by default, even in JS files
+You can also use this library in normal JavaScript files. If you're using VSCode, you should also have type autocompletion enabled by default, even in JS files
 
 ## What is PubSub?
 
@@ -170,8 +182,14 @@ Every `subscribe()` call returns an `unsubscribe()` function
   // and you can call it whenever you want
   unsubscribeTestEvent();
 ```
-It's made this way, because this returned unsubsribe function contain id of given event listener
+It's made this way, because this returned unsubsribe function contains id of given event listener
 so it's the most proper way to remove this specific listener from the memory
 
-## Performance test
-Check this link: https://stackblitz.com/edit/typescript-v2k7gx?file=index.ts
+## Subscribe for one event only
+You can also set a subscribe listener for only one event publish if needed
+
+```ts
+const pubSub = new PubSub({ events: { testEvent: '' }});
+
+pubSub.subscribeForOneEventOnly('testEvent', (data) => {/** some callback with data */});
+```

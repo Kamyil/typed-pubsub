@@ -78,4 +78,37 @@ describe('PubSub', () => {
     expect(eventCallback3).toBeCalledTimes(6);
 
   });
+
+  it('should subscribe for one event only and remove listener afterwards', () => {
+    const pubSub = new PubSub({events: {testEvent: ''}});
+
+    const eventCallback1 = jest.fn();
+    const eventCallback2 = jest.fn();
+    const eventCallback3 = jest.fn();
+
+    pubSub.subscribeForOneEventOnly('testEvent', eventCallback1);
+    pubSub.subscribe('testEvent', eventCallback2);
+    pubSub.subscribe('testEvent', eventCallback3);
+
+    pubSub.publish('testEvent');
+    pubSub.publish('testEvent');
+    pubSub.publish('testEvent');
+
+    expect(eventCallback1).toBeCalledTimes(1);
+    expect(eventCallback2).toBeCalledTimes(3);
+    expect(eventCallback3).toBeCalledTimes(3);
+
+
+    pubSub.publish('testEvent');
+    pubSub.publish('testEvent');
+    pubSub.publish('testEvent');
+
+    expect(eventCallback1).toBeCalledTimes(1);
+    expect(eventCallback2).toBeCalledTimes(6);
+    expect(eventCallback3).toBeCalledTimes(6);
+
+    expect(pubSub['listeners']['testEvent']['1']).not.toBeDefined();
+    expect(pubSub['listeners']['testEvent']['2']).toBeDefined();
+    expect(pubSub['listeners']['testEvent']['3']).toBeDefined();
+  });
 });
