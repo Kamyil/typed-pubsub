@@ -92,7 +92,7 @@ export class PubSub<Events> {
    * @param eventName The name of event
    * @param eventHandler callback that will perform on every event publish
    */
-  subscribeForOneEventOnly<
+  subscribeForOnePublishOnly<
     EventName extends keyof Events,
     EventData extends Events[EventName]
   >(eventName: EventName, eventHandler: (data: EventData) => void) {

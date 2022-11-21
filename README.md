@@ -23,7 +23,7 @@ Realistically speaking - the code is so small that you can even copy it from `in
   - [In which way this library is blazingly fast?](#in-which-way-this-library-is-blazingly-fast)
   - [I would like to extend the functionality of it](#i-would-like-to-extend-the-functionality-of-it)
   - [How to unsubscribe?](#how-to-unsubscribe)
-  - [Subscribe for one event only](#subscribe-for-one-event-only)
+  - [Subscribe for one event publish only](#subscribe-for-one-event-publish-only)
 
 ## How to use it?
 
@@ -185,11 +185,11 @@ Every `subscribe()` call returns an `unsubscribe()` function
 It's made this way, because this returned unsubsribe function contains id of given event listener
 so it's the most proper way to remove this specific listener from the memory
 
-## Subscribe for one event only
+## Subscribe for one event publish only
 You can also set a subscribe listener for only one event publish if needed
 
 ```ts
 const pubSub = new PubSub({ events: { testEvent: '' }});
 
-pubSub.subscribeForOneEventOnly('testEvent', (data) => {/** some callback with data */});
+pubSub.subscribeForOnePublishOnly('testEvent', (data) => {/** some callback with data */});
 ```

@@ -86,7 +86,7 @@ describe('PubSub', () => {
     const eventCallback2 = jest.fn();
     const eventCallback3 = jest.fn();
 
-    pubSub.subscribeForOneEventOnly('testEvent', eventCallback1);
+    pubSub.subscribeForOnePublishOnly('testEvent', eventCallback1);
     pubSub.subscribe('testEvent', eventCallback2);
     pubSub.subscribe('testEvent', eventCallback3);
 
