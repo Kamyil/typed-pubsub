@@ -115,7 +115,7 @@ For debugging purposes you can enable non-verbose logs
 ```ts
 const pubSub = new PubSub({ 
   events: Events, 
-  logs: true 
+  enableLogs: true 
 });
 ```
 
