@@ -8,11 +8,11 @@ var PubSub = /** @class */ (function () {
      */
     function PubSub(_a) {
         var events = _a.events, _b = _a.enableLogs, enableLogs = _b === void 0 ? false : _b;
-        this.listeners = {};
+        this.subscribers = {};
         if (events)
             this.events = events;
         else {
-            console.error("ERROR in PubSub: Events were not passed when initializing class");
+            console.log("Warning in PubSub: Events were not passed when initializing class");
         }
         if (enableLogs)
             this.enableLogs = enableLogs;
@@ -23,23 +23,23 @@ var PubSub = /** @class */ (function () {
      * @param data
      */
     PubSub.prototype.publish = function (eventName, data) {
-        var listenersOfThisEvent = this.listeners[eventName];
-        var listenersAmount;
-        if (listenersOfThisEvent) {
-            listenersAmount = Object.keys(listenersOfThisEvent).length;
+        var subscribersOfThisEvent = this.subscribers[eventName];
+        var subscribersAmount;
+        if (subscribersOfThisEvent) {
+            subscribersAmount = Object.keys(subscribersOfThisEvent).length;
         }
         else
-            listenersAmount = 0;
-        if (listenersAmount === 0) {
+            subscribersAmount = 0;
+        if (subscribersAmount === 0) {
             if (this.enableLogs) {
                 console.log("No listeners found for eventName: ".concat(String(eventName)));
                 return;
             }
         }
-        for (var listener in listenersOfThisEvent) {
-            listenersOfThisEvent[listener].eventHandler(data);
-            if (listenersOfThisEvent[listener].forOneEventOnly) {
-                delete listenersOfThisEvent[listener];
+        for (var subscriber in subscribersOfThisEvent) {
+            subscribersOfThisEvent[subscriber].eventHandler(data);
+            if (subscribersOfThisEvent[subscriber].forOneEventOnly) {
+                delete subscribersOfThisEvent[subscriber];
             }
         }
     };
@@ -52,21 +52,21 @@ var PubSub = /** @class */ (function () {
      */
     PubSub.prototype.subscribe = function (eventName, eventHandler) {
         var _this = this;
-        var listenersOfThisEvent = this.listeners[eventName];
-        var newListenerIndex;
-        if (listenersOfThisEvent) {
-            newListenerIndex = Number(Object.keys(listenersOfThisEvent).length + 1);
+        var subscribersOfThisEvent = this.subscribers[eventName];
+        var newSubscriberIndex;
+        if (subscribersOfThisEvent) {
+            newSubscriberIndex = Number(Object.keys(subscribersOfThisEvent).length + 1);
         }
         else {
-            newListenerIndex = 1;
-            this.listeners[eventName] = {};
+            newSubscriberIndex = 1;
+            this.subscribers[eventName] = {};
         }
-        this.listeners[eventName][newListenerIndex] = {
+        this.subscribers[eventName][newSubscriberIndex] = {
             eventHandler: eventHandler,
             forOneEventOnly: false
         };
         var unsubscribeHandler = function () {
-            delete _this.listeners[eventName][newListenerIndex];
+            delete _this.subscribers[eventName][newSubscriberIndex];
         };
         return unsubscribeHandler;
     };
@@ -76,22 +76,36 @@ var PubSub = /** @class */ (function () {
      * @param eventHandler callback that will perform on every event publish
      */
     PubSub.prototype.subscribeForOnePublishOnly = function (eventName, eventHandler) {
-        var listenersOfThisEvent = this.listeners[eventName];
-        var newListenerIndex;
-        if (listenersOfThisEvent) {
-            newListenerIndex = Number(Object.keys(listenersOfThisEvent).length + 1);
+        var subscribersOfThisEvent = this.subscribers[eventName];
+        var newSubscriberIndex;
+        if (subscribersOfThisEvent) {
+            newSubscriberIndex = Number(Object.keys(subscribersOfThisEvent).length + 1);
         }
         else {
-            newListenerIndex = 1;
-            this.listeners[eventName] = {};
+            newSubscriberIndex = 1;
+            this.subscribers[eventName] = {};
         }
-        this.listeners[eventName][newListenerIndex] = {
+        this.subscribers[eventName][newSubscriberIndex] = {
             eventHandler: eventHandler,
             forOneEventOnly: true
         };
     };
-    PubSub.prototype.clearAllListeners = function () {
-        this.listeners = {};
+    /**
+     * Removes all subscribers/listeners from memory
+     */
+    PubSub.prototype.removeAllSubscribers = function () {
+        this.subscribers = {};
+    };
+    /**
+     * Removes subscribers/listeners of specific event from memory
+     * @param eventName Name of the event
+     */
+    PubSub.prototype.removeAllSubscribersFromEvent = function (eventName) {
+        if (!this.subscribers[eventName] && this.enableLogs) {
+            console.log("PubSub warning: No subscribers of event=".concat(eventName, " found while trying to remove\nsubscribers from memory"));
+            return;
+        }
+        delete this.subscribers[eventName];
     };
     return PubSub;
 }());
