@@ -5,12 +5,16 @@
   "author": "Kamil Kseń",
   "license": "MIT",
   "keywords": [
+    "publish",
+    "subscribe",
     "pubsub",
+    "pub/sub",
+    "hardly-typed",
     "PubSub",
     "EventBus",
+    "publish/subscribe",
     "EventEmitter",
     "typed",
-    "hardly-typed",
     "fully-typed"
   ],
   "main": "index.js",
