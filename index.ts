@@ -1,35 +1,40 @@
-type UnsubscribeFunction = () => void;
-type Options<Events> = {
-  events: Events; 
-  logs?: boolean;
-}
-
-export class PubSub<Events> {
-  protected listeners: Record<string, {[id: number]: {
+type Listener = {
+  [id: number]: {
     eventHandler: (data: any) => void;
     forOneEventOnly: boolean;
-  }}> = {};
+  };
+};
+type Listeners = Record<string, Listener>;
+type UnsubscribeFunction = () => void;
+type Options<Events> = {
+  events: Events;
+  enableLogs?: boolean;
+};
+
+export class PubSub<Events> {
+  protected listeners: Listeners = {};
   protected events!: Events;
-  protected logs!: boolean;
-  
+  protected enableLogs!: boolean;
+
   /**
    * Initializes `PubSub` instance
    * @param Options
    */
-  constructor({ events, logs = false }: Options<Events>) {
+  constructor({ events, enableLogs = false }: Options<Events>) {
     if (events) this.events = events;
-    else
+    else {
       console.error(
         "ERROR in PubSub: Events were not passed when initializing class"
       );
+    }
 
-    if (logs) this.logs = logs;
+    if (enableLogs) this.enableLogs = enableLogs;
   }
 
   /**
    * Publishes the specified event with data
    * @param eventName name of the event
-   * @param data 
+   * @param data
    */
   publish<
     EventName extends keyof Events, 
@@ -39,32 +44,42 @@ export class PubSub<Events> {
     data?: EventData
   ): void {
     const listenersOfThisEvent = this.listeners[eventName as string];
+    let listenersAmount: number;
 
-    if (Object.keys(listenersOfThisEvent).length !== 0) {
-      for (let listener in listenersOfThisEvent) {
-        listenersOfThisEvent[listener].eventHandler(data);
-        if (listenersOfThisEvent[listener].forOneEventOnly) {
-          delete listenersOfThisEvent[listener];
-        }
-      }
-    } else {
-      if (this.logs) {
+    if (listenersOfThisEvent) {
+      listenersAmount = Object.keys(listenersOfThisEvent).length;
+    } else listenersAmount = 0;
+
+    if (listenersAmount === 0) {
+      if (this.enableLogs) {
         console.log(`No listeners found for eventName: ${String(eventName)}`);
+        return;
+      }
+    }
+
+    for (let listener in listenersOfThisEvent) {
+      listenersOfThisEvent[listener].eventHandler(data);
+
+      if (listenersOfThisEvent[listener].forOneEventOnly) {
+        delete listenersOfThisEvent[listener];
       }
     }
   }
 
   /**
    * Subscribes to defined event. Every time when this specific event will be published
-   * the eventHandler will be called 
+   * the eventHandler will be called
    * @param eventName The name of event
    * @param eventHandler callback that will perform on every event publish
-   * @returns Function that allows this subscribe listener to unsubscribe 
+   * @returns Function that allows this subscribe listener to unsubscribe
    */
   subscribe<
     EventName extends keyof Events,
     EventData extends Events[EventName]
-  >(eventName: EventName, eventHandler: (data: EventData) => void): UnsubscribeFunction {
+  >(
+    eventName: EventName,
+    eventHandler: (data: EventData) => void
+  ): UnsubscribeFunction {
     let listenersOfThisEvent = this.listeners[eventName as string];
     let newListenerIndex: number;
 
@@ -77,13 +92,13 @@ export class PubSub<Events> {
 
     this.listeners[eventName as string][newListenerIndex] = {
       eventHandler: eventHandler,
-      forOneEventOnly: false
+      forOneEventOnly: false,
     };
 
     const unsubscribeHandler = () => {
       delete this.listeners[eventName as string][newListenerIndex];
     };
-    
+
     return unsubscribeHandler;
   }
 
@@ -111,4 +126,9 @@ export class PubSub<Events> {
       forOneEventOnly: true,
     };
   }
+
+  clearAllListeners() {
+    this.listeners = {} as Listeners;
+  }
+
 }

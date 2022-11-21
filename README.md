@@ -24,6 +24,7 @@ Realistically speaking - the code is so small that you can even copy it from `in
   - [I would like to extend the functionality of it](#i-would-like-to-extend-the-functionality-of-it)
   - [How to unsubscribe?](#how-to-unsubscribe)
   - [Subscribe for one event publish only](#subscribe-for-one-event-publish-only)
+  - [I want to remove/clear all subscribers](#i-want-to-removeclear-all-subscribers)
 
 ## How to use it?
 
@@ -192,4 +193,12 @@ You can also set a subscribe listener for only one event publish if needed
 const pubSub = new PubSub({ events: { testEvent: '' }});
 
 pubSub.subscribeForOnePublishOnly('testEvent', (data) => {/** some callback with data */});
+```
+
+## I want to remove/clear all subscribers
+
+You can do it by using `clearAllListeners()` method
+
+```ts
+pubSub.clearAllListeners();
 ```

@@ -16,6 +16,7 @@ describe('PubSub', () => {
     pubSub.publish('testEvent');
 
     expect(eventCallback1).toBeCalledTimes(3);
+    
     expect(eventCallback2).toBeCalledTimes(3);
     expect(eventCallback3).toBeCalledTimes(3);
 
@@ -76,7 +77,6 @@ describe('PubSub', () => {
     expect(eventCallback1).toBeCalledTimes(3);
     expect(eventCallback2).toBeCalledTimes(6);
     expect(eventCallback3).toBeCalledTimes(6);
-
   });
 
   it('should subscribe for one event only and remove listener afterwards', () => {
@@ -110,5 +110,40 @@ describe('PubSub', () => {
     expect(pubSub['listeners']['testEvent']['1']).not.toBeDefined();
     expect(pubSub['listeners']['testEvent']['2']).toBeDefined();
     expect(pubSub['listeners']['testEvent']['3']).toBeDefined();
+  });
+
+  it('should allow user to clear all currently subscribed listeners', () => {
+    const NO_LISTENERS_FOUND_MSG = 'No listeners found for eventName: testEvent';
+    const pubSub = new PubSub({events: {testEvent: ''}, enableLogs: true });
+    console.log = jest.fn();
+
+    const eventCallback1 = jest.fn();
+    const eventCallback2 = jest.fn();
+    const eventCallback3 = jest.fn();
+
+    pubSub.subscribe('testEvent', eventCallback1);
+    pubSub.subscribe('testEvent', eventCallback2);
+    pubSub.subscribe('testEvent', eventCallback3);
+
+    pubSub.publish('testEvent');
+    pubSub.publish('testEvent');
+    pubSub.publish('testEvent');
+
+    expect(eventCallback1).toBeCalledTimes(3);
+    expect(eventCallback2).toBeCalledTimes(3);
+    expect(eventCallback3).toBeCalledTimes(3);
+
+    pubSub.clearAllListeners();
+    pubSub.publish('testEvent');
+    pubSub.publish('testEvent');
+    pubSub.publish('testEvent');
+    
+    expect(eventCallback1).toBeCalledTimes(3);
+    expect(eventCallback2).toBeCalledTimes(3);
+    expect(eventCallback3).toBeCalledTimes(3);
+    
+    expect(pubSub['listeners']).toStrictEqual({});
+    expect(console.log).toBeCalledTimes(3);
+    expect(console.log).toHaveBeenCalledWith(NO_LISTENERS_FOUND_MSG);
   });
 });
