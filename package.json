@@ -1,7 +1,7 @@
 {
   "name": "@kamyil/typed-pubsub",
   "private": false,
-  "version": "1.1.2",
+  "version": "1.2.0",
   "author": "Kamil Kseń",
   "license": "MIT",
   "keywords": [
