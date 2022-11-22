@@ -183,8 +183,26 @@ describe('PubSub', () => {
     expect(eventCallback2).toBeCalledTimes(2);
     expect(eventCallback3).toBeCalledTimes(2);
     
+    // @ts-ignore
     expect(pubSub['subscribers']['testEvent2']).toStrictEqual(undefined);
     expect(console.log).toBeCalledTimes(2);
     expect(console.log).toHaveBeenCalledWith(NO_LISTENERS_FOUND_MSG);
+  });
+
+  it('should allow user to check if event has any active listeners', () => {
+    const pubSub = new PubSub({
+      events: {
+        testEvent: () => {},
+        testEvent2: () => {},
+      },
+    });
+
+    const unsubscribeTestEvent1 = pubSub.subscribe('testEvent', () => {});
+    pubSub.subscribe('testEvent2', () => {});
+
+    unsubscribeTestEvent1();
+
+    expect(pubSub.hasSubscribers('testEvent')).toBe(false);
+    expect(pubSub.hasSubscribers('testEvent2')).toBe(true);
   });
 });

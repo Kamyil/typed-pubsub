@@ -107,6 +107,16 @@ var PubSub = /** @class */ (function () {
         }
         delete this.subscribers[eventName];
     };
+    /**
+     * Checks if given event has any active subscribers/listeners
+     * @param eventName
+     */
+    PubSub.prototype.hasSubscribers = function (eventName) {
+        if (Object.keys(this.subscribers[eventName]).length > 0) {
+            return true;
+        }
+        return false;
+    };
     return PubSub;
 }());
 exports.PubSub = PubSub;

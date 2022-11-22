@@ -150,4 +150,20 @@ subscribers from memory`
     }
     delete this.subscribers[eventName as string];
   }
+
+  /**
+   * Checks if given event has any active subscribers/listeners
+   * @param eventName 
+   */
+  hasSubscribers<
+    EventName extends keyof Events
+  >(
+    eventName: EventName
+  ): boolean {
+    if (Object.keys(this.subscribers[eventName as string]).length > 0) {
+      return true;
+    }
+
+    return false;
+  }
 }
