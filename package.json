@@ -1,9 +1,10 @@
 {
   "name": "@kamyil/typed-pubsub",
   "private": false,
-  "version": "1.3.2",
+  "version": "1.3.3",
   "author": "Kamil Kseń",
   "license": "MIT",
+  "homepage": "https://github.com/Kamyil/typed-pubsub",
   "repository": {
     "type": "git",
     "url": "https://github.com/Kamyil/typed-pubsub"
