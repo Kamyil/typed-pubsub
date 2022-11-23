@@ -133,7 +133,7 @@ describe('PubSub', () => {
     expect(eventCallback2).toBeCalledTimes(3);
     expect(eventCallback3).toBeCalledTimes(3);
 
-    pubSub.removeAllSubscribers();
+    pubSub.clearAllSubscribers();
     pubSub.publish('testEvent');
     pubSub.publish('testEvent');
     pubSub.publish('testEvent');
@@ -147,7 +147,7 @@ describe('PubSub', () => {
     expect(console.log).toHaveBeenCalledWith(NO_LISTENERS_FOUND_MSG);
   });
 
-  it('should allow user to remove specific subscribers', () => {
+  it('should allow user to clear specific subscribers', () => {
     const NO_LISTENERS_FOUND_MSG = 'No listeners found for eventName: testEvent2';
     const pubSub = new PubSub({
       events: {
@@ -174,7 +174,7 @@ describe('PubSub', () => {
     expect(eventCallback2).toBeCalledTimes(2);
     expect(eventCallback3).toBeCalledTimes(2);
 
-    pubSub.removeAllSubscribersFromEvent('testEvent2');
+    pubSub.clearAllSubscribersFromEvent('testEvent2');
     pubSub.publish('testEvent');
     pubSub.publish('testEvent2');
     pubSub.publish('testEvent2');
@@ -204,5 +204,36 @@ describe('PubSub', () => {
 
     expect(pubSub.hasSubscribers('testEvent')).toBe(false);
     expect(pubSub.hasSubscribers('testEvent2')).toBe(true);
+  });
+
+  it('should allow user to publish events asynchronously', async () => {
+    console.log = jest.fn();
+    const pubSub = new PubSub({
+      events: {
+        testEvent1: '',
+        testEvent2: '',
+      },
+    });
+
+    pubSub.subscribe('testEvent1', () => console.log('testEvent1'));
+    pubSub.subscribe('testEvent2', () => console.log('testEvent2'));
+
+    const hasPublishedTestEvent1 = await pubSub.publishAsync('testEvent1', 'some data');
+
+    expect(hasPublishedTestEvent1).toBe(true);
+    // @ts-ignore - intentional check if it works in runtime as well
+    const hasPublishedNonValidEvent = await pubSub.publishAsync('nonValidEvent', 'some data');
+
+    expect(hasPublishedNonValidEvent).toBe(false);
+    expect(console.log).toBeCalledWith('testEvent1');
+    expect(console.log).not.toBeCalledWith('testEvent2');
+    expect(console.log).not.toBeCalledTimes(2);
+    expect(console.log).toBeCalledTimes(1);
+
+    const hasPublishedTestEvent2 = await pubSub.publishAsync('testEvent2', 'some data');
+
+    expect(hasPublishedTestEvent2).toBe(true);
+    expect(console.log).toBeCalledWith('testEvent2');
+    expect(console.log).toBeCalledTimes(2);
   });
 });

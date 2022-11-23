@@ -4,7 +4,7 @@ Know the events you can publish             |  Know the data you will receive af
 :-------------------------:|:-------------------------:
   <img width="500" alt="Zrzut ekranu 2022-11-17 o 02 01 48" src="https://user-images.githubusercontent.com/26087070/202500892-2eed5ed1-c0de-4e4c-bf7c-3a7fbea3c00d.png">  |    <img width="500" alt="Zrzut ekranu 2022-11-17 o 02 02 52" src="https://user-images.githubusercontent.com/26087070/202501002-05133f4b-7de6-42ab-af24-69b04ae30d71.png">
   
-Typical **PubSub**, **EventBus**, **EventEmitter** (whatever you call it), that you can expect, but **fully** and **hardly** typed with full type inference, which means that you will be able to get all autocomplete and autovalidation. 
+Typical **PubSub**, **EventBus**, **EventEmitter** (whatever you call it), that you can expect, but **fully** and **hardly** typed with full type inference, which means that you will be able to get all autocomplete and autovalidation.
 Also it's scalable, very-performant and **bLaZiNgLy-fASt** with **Zero dependencies**
 
 Realistically speaking - the code is so small that you can even copy it from `index.ts` file and it will work. But of course I will appreciate if someone would decide to install it via NPM 😅 or give it a star on GitHub
@@ -14,20 +14,21 @@ Realistically speaking - the code is so small that you can even copy it from `in
 
 - [Typed PubSub](#typed-pubsub)
   - [How to use it?](#how-to-use-it)
-  - [Do I have to declare values on initialisation?](#do-i-have-to-declare-values-on-initialisation)
+  - [Do I have to declare values on initialization?](#do-i-have-to-declare-values-on-initialization)
   - [... so do the values even matter?](#-so-do-the-values-even-matter)
   - [Performance test](#performance-test)
   - [Optional logging](#optional-logging)
   - [Using it with JavaScript](#using-it-with-javascript)
   - [What is PubSub?](#what-is-pubsub)
   - [In which way this library is blazingly fast?](#in-which-way-this-library-is-blazingly-fast)
-  - [I would like to extend the functionality of it](#i-would-like-to-extend-the-functionality-of-it)
-  - [How to unsubscribe?](#how-to-unsubscribe)
+  - [I want to unsubscribe specific subscriber. How to do it?](#i-want-to-unsubscribe-specific-subscriber-how-to-do-it)
   - [I want to subscribe for one event publish only](#i-want-to-subscribe-for-one-event-publish-only)
-  - [I want to remove/clear all subscribers](#i-want-to-removeclear-all-subscribers)
-  - [I want to remove subscribers from specific event](#i-want-to-remove-subscribers-from-specific-event)
+  - [I want to clear all subscribers](#i-want-to-clear-all-subscribers)
+  - [I want to clear subscribers from specific event](#i-want-to-clear-subscribers-from-specific-event)
   - [I want to check if there are any active subscribers for specific event](#i-want-to-check-if-there-are-any-active-subscribers-for-specific-event)
   - [I prefer other method names like f.e. `emit()` \& `listen()` rather than `publish()` \& `subscribe()`](#i-prefer-other-method-names-like-fe-emit--listen-rather-than-publish--subscribe)
+  - [I want to publish/subscribe asynchronously. How to do it?](#i-want-to-publishsubscribe-asynchronously-how-to-do-it)
+  - [I want to extend the functionality of it](#i-want-to-extend-the-functionality-of-it)
 
 ## How to use it?
 
@@ -52,13 +53,13 @@ const Events = {
 }
 ```
 
-3. Create `PubSub` instance with `Events` passed
+3. Create `PubSub` instance with `events` passed
 
 ```ts
 // 1
 import { PubSub } from '@kamyil/typed-pubsub';
 // 2
-const Events = {
+const events = {
   'user:registered': { firstName: '', lastName: '', age: 22 },
   'age:changed': 40,
   'firstName:changed': 'Matt',
@@ -78,7 +79,7 @@ You can start publishing the events and subscribing to them. With all types auto
 <img width="853" alt="Zrzut ekranu 2022-11-17 o 02 02 09" src="https://user-images.githubusercontent.com/26087070/202328599-2e27b83f-e850-4ad7-9d2f-084e05269ced.png">
 <img width="853" alt="Zrzut ekranu 2022-11-17 o 02 02 52" src="https://user-images.githubusercontent.com/26087070/202328590-d9afa4e1-660f-4175-abed-f20ccc34e9c2.png">
 
-## Do I have to declare values on initialisation?
+## Do I have to declare values on initialization?
 
 You actually don't. Those values just helps TypeScript to infer
 the types of your data, so you don't need to create any types for them manually. But if you prefer to declare a types manually, then you can pass the type directly as a generic into the PubSub class like here:
@@ -101,13 +102,15 @@ const pubSub = new PubSub<TEvents>({
 **But remember that you don't need to do it, since TypeScript will nicely auto infer everything from your usage :)**
 
 ## ... so do the values even matter?
+
 **Their only role and purpose is to give TypeScript informations to infer, to allow you to have nice type checking, type inference, error validation and autocompletion.**
 As mentioned in previous point, you can even pass the empty object there and it will work in the runtime, but you will loose all of those convinient TypeScript features.
 If you prefer to declare events and data model as a types - not runtime values, you can declare them like in example in previous point:
-[Do I have to declare values on initialisation?](#do-i-have-to-declare-values-on-initialisation)
+[Do I have to declare values on initialization?](#do-i-have-to-declare-values-on-initialization)
 
 ## Performance test
-You can check how this library is performing by checking this link: https://stackblitz.com/edit/typescript-v2k7gx?file=index.ts
+
+You can check how this library is performing by checking this link: <https://stackblitz.com/edit/typescript-v2k7gx?file=index.ts>
 Test essentially creates new subscriber on every 10ms, while updating value to all subscribers on every 20ms
 
 ## Optional logging
@@ -160,20 +163,7 @@ Since PubSub is a pattern where there are not a lot of writes, but there is actu
 
 2. Also getting all subscribed event listeners is not performed by using `Array.filter()` or `Array.find()` but rather by pointing directly into concrete object, where eventName is a key. So there are no unnecessary loops going on while finding all subscribed event listeners
 
-## I would like to extend the functionality of it
-
-Since it's a simple class, you can easily extend it by using an `extends` keyword
-
-```ts
-export class CustomPubSub extends PubSub {
-  someNewProperty = '';
-  someNewFuntionality() {
-    // ...
-  }
-}
-```
-
-## How to unsubscribe?
+## I want to unsubscribe specific subscriber. How to do it?
 
 Every `subscribe()` call returns an `unsubscribe()` function
 
@@ -186,11 +176,12 @@ Every `subscribe()` call returns an `unsubscribe()` function
   // and you can call it whenever you want
   unsubscribeTestEvent();
 ```
+
 It's made this way, because this returned unsubsribe function contains id of given event listener
 so it's the most proper way to remove this specific listener from the memory
 
 ## I want to subscribe for one event publish only
- 
+
 You can also set a subscribe listener for only one event publish if needed
 
 ```ts
@@ -199,24 +190,26 @@ const pubSub = new PubSub({ events: { testEvent: '' }});
 pubSub.subscribeForOnePublishOnly('testEvent', (data) => {/** some callback with data */});
 ```
 
-## I want to remove/clear all subscribers
+## I want to clear all subscribers
 
-You can do it by using `removeAllSubscribers()` method
+You can do it by using `clearAllSubscribers()` method
 
 ```ts
-pubSub.removeAllSubscribers();
+pubSub.clearAllSubscribers();
 ```
 
-## I want to remove subscribers from specific event
-You can do it by using `removeAllSubscribersFromEvent(eventName)` method,
-where you can pass the event name as parameter and it will remove all listeners
+## I want to clear subscribers from specific event
+
+You can do it by using `clearAllSubscribersFromEvent(eventName)` method,
+where you can pass the event name as parameter and it will clear all listeners
 of that event
 
 ```ts
-pubSub.removeAllSubscribersFromEvent('name of your event');
+pubSub.clearAllSubscribersFromEvent('name of your event');
 ```
 
 ## I want to check if there are any active subscribers for specific event
+
 You can do it by using `hasSubscribers()` method, which returns `true` if there are subscribers
 for passed eventName, and `false` if not.
 
@@ -247,3 +240,51 @@ class EventEmitter<Events> extends PubSub<Events> {
 Solution is far from ideal, because you will still get `publish()` and `subscribe()` and other
 non-renamed methods in the autocompletion, but at least you will also be able to use those methods
 with a new names that you set which fits your preference, while keeping same functionality (in both types and fast execution in the runtime)
+Probably the better solution would be to copy the source code from `index.ts`, since whole functionality self-contained within one file and
+rename the methods manually. But if you want to get updates, you will also need to manually update the new code within your copied file
+If you like this library and decide to copy the source code, please at least leave a star on GitHub or install&uninstall it via npm - it will make me sure 
+that this library is used by people and it makes sense to further develop it :)
+
+## I want to publish/subscribe asynchronously. How to do it?
+
+Since it doesn't make really sense for `subscribe()` to be async, it is designed to be synchronous only.
+If you want to await for some things within subscribe, you can simply mark it's callback/eventHandler as async
+
+```ts
+pubSub.subscribe('someEvent', async () => {
+  await something();
+});
+```
+
+However, it is not the case for publish, since there might be some edgy cases where you would want to "pause" further code execution
+to be completely sure that your `publish()` call will be noticed by all subscribers
+and all of those subscribers will perform their callbacks before code runs further.
+`publish()` method has it's async equivalent named `publishAsync()`
+It also accepts eventName and data as it's arguments, but in opposite to normal synchronous `publish()` it also returns
+boolean, that indicates if publish finished successfully, which means - it found all of it's subscribers and all of them
+finished their callbacks
+**Example:**
+
+```ts
+async function onDataFetched(data) {
+  const isDataPublished = await pubSub.publishAsync('data:fetched', data);
+  if (isDataPublished) {
+    await doSomethingAfterThePublishIsComplete();
+    await doSomethingElseAfterThePublishIsComplete();
+  }
+}
+
+```
+
+## I want to extend the functionality of it
+
+Since it's a simple class, you can easily extend it by using an `extends` keyword
+
+```ts
+export class CustomPubSub extends PubSub {
+  someNewProperty = '';
+  someNewFunctionality() {
+    // ...
+  }
+}
+```

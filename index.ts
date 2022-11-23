@@ -36,10 +36,7 @@ export class PubSub<Events> {
    * @param eventName name of the event
    * @param data
    */
-  publish<
-    EventName extends keyof Events, 
-    EventData extends Events[EventName]
-  >(
+  publish<EventName extends keyof Events, EventData extends Events[EventName]>(
     eventName: EventName,
     data?: EventData
   ): void {
@@ -67,6 +64,56 @@ export class PubSub<Events> {
   }
 
   /**
+   * Allows to publish event asynchronously, which makes sure that no further code will be executed
+   * until all subscribers receive your event publish
+   * @param eventName name of the event you want to publish
+   * @param data data that will come with this event publish
+   * @returns boolean that indicates if publish went successfully or not
+   */
+  async publishAsync<
+    EventName extends keyof Events,
+    EventData extends Events[EventName]
+  >(eventName: EventName, data?: EventData): Promise<boolean> {
+    try {
+      const subscribersOfThisEvent = this.subscribers[eventName as string];
+      let subscribersAmount: number;
+
+      if (subscribersOfThisEvent) {
+        subscribersAmount = Object.keys(subscribersOfThisEvent).length;
+      } else subscribersAmount = 0;
+
+      if (subscribersAmount === 0) {
+        if (this.enableLogs) {
+          console.log(`No listeners found for eventName: ${String(eventName)}`);
+        }
+
+        return false;
+      }
+
+      for (let subscriber in subscribersOfThisEvent) {
+        subscribersOfThisEvent[subscriber].eventHandler(data);
+
+        if (subscribersOfThisEvent[subscriber].forOneEventOnly) {
+          delete subscribersOfThisEvent[subscriber];
+        }
+      }
+
+      return true;
+    } catch (error) {
+      if (this.enableLogs) {
+        console.error(
+          `error when trying to asynchronously publish event:${String(
+            eventName
+          )}.
+Error`,
+          error
+        );
+      }
+      return false;
+    }
+  }
+
+  /**
    * Subscribes to defined event. Every time when this specific event will be published
    * the eventHandler will be called
    * @param eventName The name of event
@@ -84,7 +131,9 @@ export class PubSub<Events> {
     let newSubscriberIndex: number;
 
     if (subscribersOfThisEvent) {
-      newSubscriberIndex = Number(Object.keys(subscribersOfThisEvent).length + 1);
+      newSubscriberIndex = Number(
+        Object.keys(subscribersOfThisEvent).length + 1
+      );
     } else {
       newSubscriberIndex = 1;
       this.subscribers[eventName as string] = {};
@@ -115,7 +164,9 @@ export class PubSub<Events> {
     let newSubscriberIndex: number;
 
     if (subscribersOfThisEvent) {
-      newSubscriberIndex = Number(Object.keys(subscribersOfThisEvent).length + 1);
+      newSubscriberIndex = Number(
+        Object.keys(subscribersOfThisEvent).length + 1
+      );
     } else {
       newSubscriberIndex = 1;
       this.subscribers[eventName as string] = {};
@@ -130,7 +181,7 @@ export class PubSub<Events> {
   /**
    * Removes all subscribers/listeners from memory
    */
-  removeAllSubscribers() {
+  clearAllSubscribers() {
     this.subscribers = {} as Subscribers;
   }
 
@@ -138,12 +189,14 @@ export class PubSub<Events> {
    * Removes subscribers/listeners of specific event from memory
    * @param eventName Name of the event
    */
-  removeAllSubscribersFromEvent<
-    EventName extends keyof Events
-  >(eventName: EventName) {
+  clearAllSubscribersFromEvent<EventName extends keyof Events>(
+    eventName: EventName
+  ) {
     if (!this.subscribers[eventName as string] && this.enableLogs) {
       console.log(
-`PubSub warning: No subscribers of event=${eventName as string} found while trying to remove
+        `PubSub warning: No subscribers of event=${
+          eventName as string
+        } found while trying to remove
 subscribers from memory`
       );
       return;
@@ -153,11 +206,9 @@ subscribers from memory`
 
   /**
    * Checks if given event has any active subscribers/listeners
-   * @param eventName 
+   * @param eventName
    */
-  hasSubscribers<
-    EventName extends keyof Events
-  >(
+  hasSubscribers<EventName extends keyof Events>(
     eventName: EventName
   ): boolean {
     if (Object.keys(this.subscribers[eventName as string]).length > 0) {
