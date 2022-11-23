@@ -189,12 +189,24 @@ var PubSub = /** @class */ (function () {
     /**
      * Checks if given event has any active subscribers/listeners
      * @param eventName
+     *
+     * @returns boolean indicating if given event has any active subscribers
      */
     PubSub.prototype.hasSubscribers = function (eventName) {
         if (Object.keys(this.subscribers[eventName]).length > 0) {
             return true;
         }
         return false;
+    };
+    /**
+     * Counts all subscribers that subscribe given specific event
+     * It starts counting from 1. 0 means no active subscribers
+     * @param eventName name of the event they subscribe
+     *
+     * @returns amount of subscribers
+     */
+    PubSub.prototype.countSubscribers = function (eventName) {
+        return Object.keys(this.subscribers[eventName]).length;
     };
     return PubSub;
 }());

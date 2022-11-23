@@ -29,6 +29,7 @@ Realistically speaking - the code is so small that you can even copy it from `in
   - [I prefer other method names like f.e. `emit()` \& `listen()` rather than `publish()` \& `subscribe()`](#i-prefer-other-method-names-like-fe-emit--listen-rather-than-publish--subscribe)
   - [I want to publish/subscribe asynchronously. How to do it?](#i-want-to-publishsubscribe-asynchronously-how-to-do-it)
   - [I want to extend the functionality of it](#i-want-to-extend-the-functionality-of-it)
+  - [I want to count how many subscribers specific event has](#i-want-to-count-how-many-subscribers-specific-event-has)
 
 ## How to use it?
 
@@ -287,4 +288,17 @@ export class CustomPubSub extends PubSub {
     // ...
   }
 }
+```
+
+## I want to count how many subscribers specific event has
+
+You can do it by using `countSubscribers()` method
+
+```ts
+
+pubSub.subscribe('someEvent', () => {});
+pubSub.subscribe('someEvent', () => {});
+
+const subsAmount = pubSub.countSubscribers();
+console.log(subsAmount) // => 2
 ```
