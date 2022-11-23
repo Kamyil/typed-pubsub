@@ -26,6 +26,8 @@ Realistically speaking - the code is so small that you can even copy it from `in
   - [I want to subscribe for one event publish only](#i-want-to-subscribe-for-one-event-publish-only)
   - [I want to remove/clear all subscribers](#i-want-to-removeclear-all-subscribers)
   - [I want to remove subscribers from specific event](#i-want-to-remove-subscribers-from-specific-event)
+  - [I want to check if there are any active subscribers for specific event](#i-want-to-check-if-there-are-any-active-subscribers-for-specific-event)
+  - [I prefer other method names like f.e. `emit()` \& `listen()` rather than `publish()` \& `subscribe()`](#i-prefer-other-method-names-like-fe-emit--listen-rather-than-publish--subscribe)
 
 ## How to use it?
 
@@ -213,3 +215,35 @@ of that event
 ```ts
 pubSub.removeAllSubscribersFromEvent('name of your event');
 ```
+
+## I want to check if there are any active subscribers for specific event
+You can do it by using `hasSubscribers()` method, which returns `true` if there are subscribers
+for passed eventName, and `false` if not.
+
+```ts
+pubSub.hasSubscribers('name of your event');
+```
+
+## I prefer other method names like f.e. `emit()` & `listen()` rather than `publish()` & `subscribe()`
+
+Since this library relies hardly on types, it's hard to add some method rename function,
+because even if you could run such rename() and start using f.e. `pubSub.listen()` or `pubSub.emit()` in the runtime,
+it unfortunetly wouldn't work properly for types, since TS cannot resolve types dynamically
+depending on your runtime usage. So the solution here *(not-ideal but it somewhat solves the problem)*
+would be to create new class that extends this class and remap the names like so:
+
+```ts
+import { PubSub } from '@kamyil/typed-pubsub';
+
+// Remember to add and pass generic here, to let type inference keep working properly
+class EventEmitter<Events> extends PubSub<Events> {
+  emit = this.publish;
+  listen = this.subscribe;
+  hasListeners = this.hasSubscribers;
+  //... and so on
+}
+```
+
+Solution is far from ideal, because you will still get `publish()` and `subscribe()` and other
+non-renamed methods in the autocompletion, but at least you will also be able to use those methods
+with a new names that you set which fits your preference, while keeping same functionality (in both types and fast execution in the runtime)
