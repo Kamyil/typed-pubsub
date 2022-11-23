@@ -159,7 +159,7 @@ Error`,
   subscribeForOnePublishOnly<
     EventName extends keyof Events,
     EventData extends Events[EventName]
-  >(eventName: EventName, eventHandler: (data: EventData) => void) {
+  >(eventName: EventName, eventHandler: (data: EventData) => void): void {
     let subscribersOfThisEvent = this.subscribers[eventName as string];
     let newSubscriberIndex: number;
 
@@ -181,7 +181,7 @@ Error`,
   /**
    * Removes all subscribers/listeners from memory
    */
-  clearAllSubscribers() {
+  clearAllSubscribers(): void {
     this.subscribers = {} as Subscribers;
   }
 
@@ -191,7 +191,7 @@ Error`,
    */
   clearAllSubscribersFromEvent<EventName extends keyof Events>(
     eventName: EventName
-  ) {
+  ): void {
     if (!this.subscribers[eventName as string] && this.enableLogs) {
       console.log(
         `PubSub warning: No subscribers of event=${
@@ -207,6 +207,8 @@ subscribers from memory`
   /**
    * Checks if given event has any active subscribers/listeners
    * @param eventName
+   * 
+   * @returns boolean indicating if given event has any active subscribers
    */
   hasSubscribers<EventName extends keyof Events>(
     eventName: EventName
@@ -216,5 +218,18 @@ subscribers from memory`
     }
 
     return false;
+  }
+
+  /**
+   * Counts all subscribers that subscribe given specific event
+   * It starts counting from 1. 0 means no active subscribers
+   * @param eventName name of the event they subscribe
+   * 
+   * @returns amount of subscribers
+   */
+   countSubscribers<EventName extends keyof Events>(
+    eventName: EventName
+  ): number {
+    return Object.keys(this.subscribers[eventName as string]).length;
   }
 }

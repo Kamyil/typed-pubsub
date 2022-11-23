@@ -236,4 +236,30 @@ describe('PubSub', () => {
     expect(console.log).toBeCalledWith('testEvent2');
     expect(console.log).toBeCalledTimes(2);
   });
+
+  it('should allow user to count how many subscribers specific event has', () => {
+    const pubSub = new PubSub({
+      events: {
+        testEvent1: '',
+        testEvent2: '',
+      },
+    });
+
+    const unsubscribeTestEvent1 = pubSub.subscribe('testEvent1', () => {});
+    pubSub.subscribe('testEvent1', () => {});
+    pubSub.subscribe('testEvent1', () => {});
+    pubSub.subscribe('testEvent1', () => {});
+    pubSub.subscribe('testEvent1', () => {});
+    pubSub.subscribe('testEvent1', () => {});
+    const unsubscribeTestEvent2 = pubSub.subscribe('testEvent2', () => {});
+
+    expect(pubSub.countSubscribers('testEvent1')).toBe(6);
+    expect(pubSub.countSubscribers('testEvent2')).toBe(1);
+
+    unsubscribeTestEvent2();
+    unsubscribeTestEvent1();
+
+    expect(pubSub.countSubscribers('testEvent1')).toBe(5);
+    expect(pubSub.countSubscribers('testEvent2')).toBe(0);
+  });
 });
