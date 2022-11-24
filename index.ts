@@ -91,7 +91,7 @@ export class PubSub<Events> {
       }
 
       for (let subscriber in subscribersOfThisEvent) {
-        subscribersOfThisEvent[subscriber].eventHandler(data);
+        await subscribersOfThisEvent[subscriber].eventHandler(data);
 
         if (subscribersOfThisEvent[subscriber].forOneEventOnly) {
           delete subscribersOfThisEvent[subscriber];
