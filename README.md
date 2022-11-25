@@ -5,11 +5,10 @@ Know the events you can publish             |  Know the data you will receive af
   <img width="500" alt="Zrzut ekranu 2022-11-17 o 02 01 48" src="https://user-images.githubusercontent.com/26087070/202500892-2eed5ed1-c0de-4e4c-bf7c-3a7fbea3c00d.png">  |    <img width="500" alt="Zrzut ekranu 2022-11-17 o 02 02 52" src="https://user-images.githubusercontent.com/26087070/202501002-05133f4b-7de6-42ab-af24-69b04ae30d71.png">
   
 Typical **PubSub**, **EventBus**, **EventEmitter** (whatever you call it), that you can expect, but **fully** and **hardly** typed with full type inference, which means that you will be able to get all autocomplete and autovalidation.
-Also it's scalable, very-performant and **bLaZiNgLy-fASt** with **Zero dependencies**
-
-Realistically speaking - the code is so small that you can even copy it from `index.ts` file and it will work. But of course I will appreciate if someone would decide to install it via NPM 😅 or give it a star on GitHub
+It's scalable, very-performant and feature packed with all batteries included with **Zero dependencies**
 
 **NPM**: <https://www.npmjs.com/package/@kamyil/typed-pubsub>
+
 **GitHub**: <https://github.com/Kamyil/typed-pubsub>
 
 - [Typed PubSub](#typed-pubsub)
@@ -20,7 +19,7 @@ Realistically speaking - the code is so small that you can even copy it from `in
   - [Optional logging](#optional-logging)
   - [Using it with JavaScript](#using-it-with-javascript)
   - [What is PubSub?](#what-is-pubsub)
-  - [In which way this library is blazingly fast?](#in-which-way-this-library-is-blazingly-fast)
+  - [In which way this library is fast?](#in-which-way-this-library-is-fast)
   - [I want to unsubscribe specific subscriber. How to do it?](#i-want-to-unsubscribe-specific-subscriber-how-to-do-it)
   - [I want to subscribe for one event publish only](#i-want-to-subscribe-for-one-event-publish-only)
   - [I want to clear all subscribers](#i-want-to-clear-all-subscribers)
@@ -28,6 +27,7 @@ Realistically speaking - the code is so small that you can even copy it from `in
   - [I want to check if there are any active subscribers for specific event](#i-want-to-check-if-there-are-any-active-subscribers-for-specific-event)
   - [I prefer other method names like f.e. `emit()` \& `listen()` rather than `publish()` \& `subscribe()`](#i-prefer-other-method-names-like-fe-emit--listen-rather-than-publish--subscribe)
   - [I want to publish/subscribe asynchronously. How to do it?](#i-want-to-publishsubscribe-asynchronously-how-to-do-it)
+  - [I want to check history of all publishes and subscribes](#i-want-to-check-history-of-all-publishes-and-subscribes)
   - [I want to extend the functionality of it](#i-want-to-extend-the-functionality-of-it)
   - [I want to count how many subscribers specific event has](#i-want-to-count-how-many-subscribers-specific-event-has)
 
@@ -135,7 +135,7 @@ You can also use this library in normal JavaScript files. If you're using VSCode
 You can get more info about this here:
 <https://www.enjoyalgorithms.com/blog/publisher-subscriber-pattern>
 
-## In which way this library is blazingly fast?
+## In which way this library is fast?
 
 1. In compare to other PubSub libraries, this one does not store event listeners in the `Map`, `Array` or `Set` but simple object instead with following model:
 
@@ -292,6 +292,27 @@ async function onDataFetched(data) {
   }
 }
 ```
+
+## I want to check history of all publishes and subscribes
+
+You can enable history tracking, by enabling `keepHistory` option while instantiating PubSub
+
+```ts
+  const pubSub = new PubSub({
+    events: Events
+    keepHistory: true
+  });
+```
+
+It's a great tool for debugging events. This way you can check history of all publishes, async publishes, subscribes and unsubscribes.
+And you can log the whole history by running
+
+```ts
+pubSub.logHistory();
+```
+
+Of course, this option is disabled by default for performance reasons. Not saying that it will badly impact performance
+if it will be enabled fe. on production, but it will unnecessarily keep a lot of objects in `history` array for no reason
 
 ## I want to extend the functionality of it
 

@@ -43,7 +43,8 @@ var PubSub = /** @class */ (function () {
      * @param Options
      */
     function PubSub(_a) {
-        var events = _a.events, _b = _a.enableLogs, enableLogs = _b === void 0 ? false : _b;
+        var events = _a.events, _b = _a.enableLogs, enableLogs = _b === void 0 ? false : _b, _c = _a.keepHistory, keepHistory = _c === void 0 ? false : _c;
+        this.history = [];
         this.subscribers = {};
         if (events)
             this.events = events;
@@ -52,6 +53,8 @@ var PubSub = /** @class */ (function () {
         }
         if (enableLogs)
             this.enableLogs = enableLogs;
+        if (keepHistory)
+            this.keepHistory = keepHistory;
     }
     /**
      * Publishes the specified event with data
@@ -76,8 +79,12 @@ var PubSub = /** @class */ (function () {
             subscribersOfThisEvent[subscriber].eventHandler(data);
             if (subscribersOfThisEvent[subscriber].forOneEventOnly) {
                 delete subscribersOfThisEvent[subscriber];
+                if (this.keepHistory)
+                    this.history.push({ message: "Event handler for: ".concat(eventName, " removed, since it subscribed for one publish only") });
             }
         }
+        if (this.keepHistory)
+            this.history.push({ message: "".concat(eventName, " event published with data:"), data: data });
     };
     /**
      * Allows to publish event asynchronously, which makes sure that no further code will be executed
@@ -96,7 +103,7 @@ var PubSub = /** @class */ (function () {
             return __generator(this, function (_c) {
                 switch (_c.label) {
                     case 0:
-                        _c.trys.push([0, 7, , 8]);
+                        _c.trys.push([0, 6, , 7]);
                         subscribersOfThisEvent = this.subscribers[eventName];
                         subscribersAmount = void 0;
                         if (subscribersOfThisEvent) {
@@ -116,32 +123,35 @@ var PubSub = /** @class */ (function () {
                         _i = 0;
                         _c.label = 1;
                     case 1:
-                        if (!(_i < _a.length)) return [3 /*break*/, 6];
+                        if (!(_i < _a.length)) return [3 /*break*/, 5];
                         subscriber = _a[_i];
                         if (!(options === null || options === void 0 ? void 0 : options.awaitAllSubscribersFinish)) return [3 /*break*/, 3];
                         return [4 /*yield*/, subscribersOfThisEvent[subscriber].eventHandler(data)];
                     case 2:
                         _c.sent();
-                        return [3 /*break*/, 4];
+                        _c.label = 3;
                     case 3:
                         subscribersOfThisEvent[subscriber].eventHandler(data);
-                        _c.label = 4;
-                    case 4:
                         if (subscribersOfThisEvent[subscriber].forOneEventOnly) {
                             delete subscribersOfThisEvent[subscriber];
+                            if (this.keepHistory)
+                                this.history.push({ message: "Event handler for: ".concat(eventName, " removed, since it subscribed for one publish only") });
                         }
-                        _c.label = 5;
-                    case 5:
+                        _c.label = 4;
+                    case 4:
                         _i++;
                         return [3 /*break*/, 1];
-                    case 6: return [2 /*return*/, true];
-                    case 7:
+                    case 5:
+                        if (this.keepHistory)
+                            this.history.push({ message: "".concat(eventName, " event published asynchronously with data:"), data: data });
+                        return [2 /*return*/, true];
+                    case 6:
                         error_1 = _c.sent();
                         if (this.enableLogs) {
                             console.error("error when trying to asynchronously publish event:".concat(String(eventName), ".\nError"), error_1);
                         }
                         return [2 /*return*/, false];
-                    case 8: return [2 /*return*/];
+                    case 7: return [2 /*return*/];
                 }
             });
         });
@@ -170,7 +180,11 @@ var PubSub = /** @class */ (function () {
         };
         var unsubscribeHandler = function () {
             delete _this.subscribers[eventName][newSubscriberIndex];
+            if (_this.keepHistory)
+                _this.history.push({ message: "Unsubscribed from event: ".concat(eventName) });
         };
+        if (this.keepHistory)
+            this.history.push({ message: "subscribed for event: ".concat(eventName) });
         return unsubscribeHandler;
     };
     /**
@@ -192,11 +206,15 @@ var PubSub = /** @class */ (function () {
             eventHandler: eventHandler,
             forOneEventOnly: true
         };
+        if (this.keepHistory)
+            this.history.push({ message: "subscribed for one publish only for event: ".concat(eventName) });
     };
     /**
      * Removes all subscribers/listeners from memory
      */
     PubSub.prototype.clearAllSubscribers = function () {
+        if (this.keepHistory)
+            this.history.push({ message: "All subscribers cleared" });
         this.subscribers = {};
     };
     /**
@@ -209,6 +227,8 @@ var PubSub = /** @class */ (function () {
             return;
         }
         delete this.subscribers[eventName];
+        if (this.keepHistory)
+            this.history.push({ message: "All subscribers cleared for event ".concat(eventName) });
     };
     /**
      * Checks if given event has any active subscribers/listeners
@@ -231,6 +251,12 @@ var PubSub = /** @class */ (function () {
      */
     PubSub.prototype.countSubscribers = function (eventName) {
         return Object.keys(this.subscribers[eventName]).length;
+    };
+    PubSub.prototype.logHistory = function () {
+        if (!this.keepHistory) {
+            console.error("logHistory() will log empty array, because keepHistory param was not enabled while instantiating PubSub. Enable keepHistory first");
+        }
+        console.log(this.history);
     };
     return PubSub;
 }());

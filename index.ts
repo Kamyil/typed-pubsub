@@ -11,18 +11,21 @@ type UnsubscribeFunction = () => void;
 type Options<Events> = {
   events: Events;
   enableLogs?: boolean;
+  keepHistory?: boolean;
 };
 
 export class PubSub<Events> {
+  protected history: { message: string, data?: any}[] = [];
   protected subscribers: Subscribers = {};
   protected events!: Events;
-  protected enableLogs!: boolean;
+  private enableLogs!: boolean;
+  private keepHistory!: boolean;
 
   /**
    * Initializes `PubSub` instance
    * @param Options
    */
-  constructor({ events, enableLogs = false }: Options<Events>) {
+  constructor({ events, enableLogs = false, keepHistory = false }: Options<Events>) {
     if (events) this.events = events;
     else {
       console.log(
@@ -31,6 +34,7 @@ export class PubSub<Events> {
     }
 
     if (enableLogs) this.enableLogs = enableLogs;
+    if (keepHistory) this.keepHistory = keepHistory;
   }
 
   /**
@@ -61,8 +65,10 @@ export class PubSub<Events> {
 
       if (subscribersOfThisEvent[subscriber].forOneEventOnly) {
         delete subscribersOfThisEvent[subscriber];
+        if (this.keepHistory) this.history.push({ message:`Event handler for: ${eventName as string} removed, since it subscribed for one publish only`});
       }
     }
+    if (this.keepHistory) this.history.push({message: `${eventName as string} event published with data:`, data });
   }
 
   /**
@@ -102,13 +108,15 @@ export class PubSub<Events> {
       for (let subscriber in subscribersOfThisEvent) {
         if (options?.awaitAllSubscribersFinish) {
           await subscribersOfThisEvent[subscriber].eventHandler(data);
-        } else subscribersOfThisEvent[subscriber].eventHandler(data);
+        } subscribersOfThisEvent[subscriber].eventHandler(data);
 
         if (subscribersOfThisEvent[subscriber].forOneEventOnly) {
           delete subscribersOfThisEvent[subscriber];
+          if (this.keepHistory) this.history.push({ message: `Event handler for: ${eventName as string} removed, since it subscribed for one publish only`});
         }
       }
 
+      if (this.keepHistory) this.history.push({message: `${eventName as string} event published asynchronously with data:`, data });
       return true;
     } catch (error) {
       if (this.enableLogs) {
@@ -157,7 +165,10 @@ Error`,
 
     const unsubscribeHandler = () => {
       delete this.subscribers[eventName as string][newSubscriberIndex];
+      if (this.keepHistory) this.history.push({ message: `Unsubscribed from event: ${eventName as string}` });
     };
+
+    if (this.keepHistory) this.history.push({ message: `subscribed for event: ${eventName as string}` });
 
     return unsubscribeHandler;
   }
@@ -187,12 +198,15 @@ Error`,
       eventHandler: eventHandler,
       forOneEventOnly: true,
     };
+
+    if (this.keepHistory) this.history.push({ message: `subscribed for one publish only for event: ${eventName as string}` });
   }
 
   /**
    * Removes all subscribers/listeners from memory
    */
   clearAllSubscribers(): void {
+    if (this.keepHistory) this.history.push({ message: `All subscribers cleared` });
     this.subscribers = {} as Subscribers;
   }
 
@@ -213,6 +227,7 @@ subscribers from memory`
       return;
     }
     delete this.subscribers[eventName as string];
+    if (this.keepHistory) this.history.push({ message: `All subscribers cleared for event ${eventName as string}` });
   }
 
   /**
@@ -242,5 +257,12 @@ subscribers from memory`
     eventName: EventName
   ): number {
     return Object.keys(this.subscribers[eventName as string]).length;
+  }
+
+  logHistory(): void {
+    if (!this.keepHistory) {
+      console.error(`logHistory() will log empty array, because keepHistory param was not enabled while instantiating PubSub. Enable keepHistory first`);
+    }
+    console.log(this.history);
   }
 }
