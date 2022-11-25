@@ -81,44 +81,68 @@ var PubSub = /** @class */ (function () {
     };
     /**
      * Allows to publish event asynchronously, which makes sure that no further code will be executed
-     * until all subscribers receive your event publish
+     * until all subscribers receive your event publish and (by default) they finish their callbacks (can be opt-out in options param)
      * @param eventName name of the event you want to publish
      * @param data data that will come with this event publish
-     * @returns boolean that indicates if publish went successfully or not
+     * @param options
+     * @returns boolean that indicates if publish went successfully or not - which means all subscribers received the message and all subscribers (by default) finish their callbacks (can be opt-out in options param)
      */
-    PubSub.prototype.publishAsync = function (eventName, data) {
+    PubSub.prototype.publishAsync = function (eventName, data, options) {
+        if (options === void 0) { options = {
+            awaitAllSubscribersFinish: true
+        }; }
         return __awaiter(this, void 0, void 0, function () {
-            var subscribersOfThisEvent, subscribersAmount, subscriber;
-            return __generator(this, function (_a) {
-                try {
-                    subscribersOfThisEvent = this.subscribers[eventName];
-                    subscribersAmount = void 0;
-                    if (subscribersOfThisEvent) {
-                        subscribersAmount = Object.keys(subscribersOfThisEvent).length;
-                    }
-                    else
-                        subscribersAmount = 0;
-                    if (subscribersAmount === 0) {
-                        if (this.enableLogs) {
-                            console.log("No listeners found for eventName: ".concat(String(eventName)));
+            var subscribersOfThisEvent, subscribersAmount, _a, _b, _i, subscriber, error_1;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        _c.trys.push([0, 7, , 8]);
+                        subscribersOfThisEvent = this.subscribers[eventName];
+                        subscribersAmount = void 0;
+                        if (subscribersOfThisEvent) {
+                            subscribersAmount = Object.keys(subscribersOfThisEvent).length;
                         }
-                        return [2 /*return*/, false];
-                    }
-                    for (subscriber in subscribersOfThisEvent) {
+                        else
+                            subscribersAmount = 0;
+                        if (subscribersAmount === 0) {
+                            if (this.enableLogs) {
+                                console.log("No listeners found for eventName: ".concat(String(eventName)));
+                            }
+                            return [2 /*return*/, false];
+                        }
+                        _a = [];
+                        for (_b in subscribersOfThisEvent)
+                            _a.push(_b);
+                        _i = 0;
+                        _c.label = 1;
+                    case 1:
+                        if (!(_i < _a.length)) return [3 /*break*/, 6];
+                        subscriber = _a[_i];
+                        if (!(options === null || options === void 0 ? void 0 : options.awaitAllSubscribersFinish)) return [3 /*break*/, 3];
+                        return [4 /*yield*/, subscribersOfThisEvent[subscriber].eventHandler(data)];
+                    case 2:
+                        _c.sent();
+                        return [3 /*break*/, 4];
+                    case 3:
                         subscribersOfThisEvent[subscriber].eventHandler(data);
+                        _c.label = 4;
+                    case 4:
                         if (subscribersOfThisEvent[subscriber].forOneEventOnly) {
                             delete subscribersOfThisEvent[subscriber];
                         }
-                    }
-                    return [2 /*return*/, true];
+                        _c.label = 5;
+                    case 5:
+                        _i++;
+                        return [3 /*break*/, 1];
+                    case 6: return [2 /*return*/, true];
+                    case 7:
+                        error_1 = _c.sent();
+                        if (this.enableLogs) {
+                            console.error("error when trying to asynchronously publish event:".concat(String(eventName), ".\nError"), error_1);
+                        }
+                        return [2 /*return*/, false];
+                    case 8: return [2 /*return*/];
                 }
-                catch (error) {
-                    if (this.enableLogs) {
-                        console.error("error when trying to asynchronously publish event:".concat(String(eventName), ".\nError"), error);
-                    }
-                    return [2 /*return*/, false];
-                }
-                return [2 /*return*/];
             });
         });
     };

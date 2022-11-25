@@ -206,7 +206,7 @@ describe('PubSub', () => {
     expect(pubSub.hasSubscribers('testEvent2')).toBe(true);
   });
 
-  it('should allow user to publish events asynchronously', async () => {
+  it('should allow user to publish events asynchronously and NOT await for all subscribers to finish before returning the status and resolving Promise', async () => {
     console.log = jest.fn();
     const pubSub = new PubSub({
       events: {
@@ -215,8 +215,56 @@ describe('PubSub', () => {
       },
     });
 
-    pubSub.subscribe('testEvent1', () => console.log('testEvent1'));
-    pubSub.subscribe('testEvent2', () => console.log('testEvent2'));
+    const promiseToResolve = (callback: () => void) => new Promise((resolve) => {
+      setTimeout(() => {
+        callback();
+        resolve(true);
+      }, Infinity)
+    });
+
+    pubSub.subscribe('testEvent1', () => promiseToResolve(() => console.log('testEvent1')));
+    pubSub.subscribe('testEvent2', () => promiseToResolve(() => console.log('testEvent2')));
+
+    const hasPublishedTestEvent1 = await pubSub.publishAsync('testEvent1', 'some data', {
+      awaitAllSubscribersFinish: false
+    });
+
+    expect(hasPublishedTestEvent1).toBe(true);
+    // @ts-ignore - intentional check if it works in runtime as well
+    const hasPublishedNonValidEvent = await pubSub.publishAsync('nonValidEvent', 'some data', {
+      awaitAllSubscribersFinish: false
+    });
+
+    expect(hasPublishedNonValidEvent).toBe(false);
+    expect(console.log).not.toBeCalled();
+
+    const hasPublishedTestEvent2 = await pubSub.publishAsync('testEvent2', 'some data', {
+      awaitAllSubscribersFinish: false
+    });
+
+    expect(hasPublishedTestEvent2).toBe(true);
+    expect(console.log).not.toBeCalledWith('testEvent2');
+    expect(console.log).not.toBeCalledTimes(2);
+  });
+
+  it('should allow user to publish events asynchronously and await for all subscribers to finish before returning the status and resolving Promise', async () => {
+    console.log = jest.fn();
+    const pubSub = new PubSub({
+      events: {
+        testEvent1: '',
+        testEvent2: '',
+      },
+    });
+
+    const promiseToResolve = (callback: () => void) => new Promise((resolve) => {
+      setTimeout(() => {
+        callback();
+        resolve(true);
+      }, 1000)
+    });
+
+    pubSub.subscribe('testEvent1', () => promiseToResolve(() => console.log('testEvent1')));
+    pubSub.subscribe('testEvent2', () => promiseToResolve(() => console.log('testEvent2')));
 
     const hasPublishedTestEvent1 = await pubSub.publishAsync('testEvent1', 'some data');
 
@@ -225,16 +273,16 @@ describe('PubSub', () => {
     const hasPublishedNonValidEvent = await pubSub.publishAsync('nonValidEvent', 'some data');
 
     expect(hasPublishedNonValidEvent).toBe(false);
+    expect(console.log).toBeCalled();
     expect(console.log).toBeCalledWith('testEvent1');
-    expect(console.log).not.toBeCalledWith('testEvent2');
-    expect(console.log).not.toBeCalledTimes(2);
-    expect(console.log).toBeCalledTimes(1);
 
-    const hasPublishedTestEvent2 = await pubSub.publishAsync('testEvent2', 'some data');
+    const hasPublishedTestEvent2 = await pubSub.publishAsync('testEvent2', 'some data', {
+      awaitAllSubscribersFinish: false
+    });
 
     expect(hasPublishedTestEvent2).toBe(true);
     expect(console.log).toBeCalledWith('testEvent2');
-    expect(console.log).toBeCalledTimes(2);
+    expect(console.log).toBeCalledTimes(3);
   });
 
   it('should allow user to count how many subscribers specific event has', () => {
