@@ -107,8 +107,11 @@ describe('PubSub', () => {
     expect(eventCallback2).toBeCalledTimes(6);
     expect(eventCallback3).toBeCalledTimes(6);
 
+    // @ts-ignore
     expect(pubSub['subscribers']['testEvent']['1']).not.toBeDefined();
+    // @ts-ignore
     expect(pubSub['subscribers']['testEvent']['2']).toBeDefined();
+    // @ts-ignore
     expect(pubSub['subscribers']['testEvent']['3']).toBeDefined();
   });
 
@@ -309,5 +312,62 @@ describe('PubSub', () => {
 
     expect(pubSub.countSubscribers('testEvent1')).toBe(5);
     expect(pubSub.countSubscribers('testEvent2')).toBe(0);
+  });
+
+  it('should throw error while trying to log history without enabling keepHistory first', () => {
+    console.log = jest.fn();
+    console.error = jest.fn();
+    const pubSub = new PubSub({
+      events: {
+        testEvent1: '',
+      },
+    });
+
+    pubSub.subscribe('testEvent1', () => console.log('testEvent1'));
+    pubSub.subscribe('testEvent1', () => console.log('testEvent1 #2'));
+    pubSub.publish('testEvent1', '');
+    pubSub.publish('testEvent1', '');
+
+    pubSub.logHistory();
+    expect(pubSub['history']).toStrictEqual([]);
+    expect(console.error).toBeCalled();
+    expect(console.error).toBeCalledWith(`logHistory() will log empty array, because keepHistory param was not enabled while instantiating PubSub. Enable keepHistory first`);
+  });
+
+  it('should allow user to keep history of all publishes and subscriptions and let user be able to logHistory()', async () => {
+    console.log = jest.fn();
+    console.error = jest.fn();
+    const pubSub = new PubSub({
+      events: {
+        testEvent1: {something: ''},
+        testEvent2: {something: ''},
+      },
+      keepHistory: true
+    });
+
+    const unsubscribeTestEvent1 = pubSub.subscribe('testEvent1', () => console.log('testEvent1'));
+    pubSub.subscribe('testEvent2', () => console.log('testEvent2'));
+    pubSub.publish('testEvent1', {something: 'testEvent1'});
+    pubSub.publish('testEvent2', {something: 'testEvent2'});
+    unsubscribeTestEvent1();
+
+    await pubSub.publishAsync('testEvent2', {something: 'testEvent2'});
+
+    expect(pubSub['history']).toStrictEqual([
+      { message: 'subscribed for event: testEvent1' },
+      { message: 'subscribed for event: testEvent2' },
+      { message: 'testEvent1 event published with data:', data: {something: 'testEvent1'}},
+      { message: 'testEvent2 event published with data:', data: {something: 'testEvent2'}},
+      { message: 'Unsubscribed from event: testEvent1'},
+      { message: 'testEvent2 event published asynchronously with data:', data: {something: 'testEvent2'}},
+    ]);
+    expect(console.log).toBeCalled();
+    expect(console.error).not.toBeCalled();
+    expect(console.error).not.toBeCalledWith(`logHistory() will log empty array, because keepHistory param was not enabled while instantiating PubSub. Enable keepHistory first`);
+
+    console.clear();
+
+    pubSub.logHistory();
+    expect(console.log).toBeCalledWith(pubSub['history']);
   });
 });
