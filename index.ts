@@ -1,10 +1,12 @@
-type Subscriber = {
+type AsyncEventHandler<EventData> = (data: EventData) => Promise<void>;
+type SyncEventHandler<EventData> = (data: EventData) => void;
+type Subscriber<EventData> = {
   [id: number]: {
-    eventHandler: (data: any) => void;
+    eventHandler: SyncEventHandler<EventData> | AsyncEventHandler<EventData>;
     forOneEventOnly: boolean;
   };
 };
-type Subscribers = Record<string, Subscriber>;
+type Subscribers = Record<string, Subscriber<any>>;
 type UnsubscribeFunction = () => void;
 type Options<Events> = {
   events: Events;
@@ -65,15 +67,22 @@ export class PubSub<Events> {
 
   /**
    * Allows to publish event asynchronously, which makes sure that no further code will be executed
-   * until all subscribers receive your event publish
+   * until all subscribers receive your event publish and (by default) they finish their callbacks (can be opt-out in options param)
    * @param eventName name of the event you want to publish
    * @param data data that will come with this event publish
-   * @returns boolean that indicates if publish went successfully or not
+   * @param options
+   * @returns boolean that indicates if publish went successfully or not - which means all subscribers received the message and all subscribers (by default) finish their callbacks (can be opt-out in options param)
    */
   async publishAsync<
     EventName extends keyof Events,
     EventData extends Events[EventName]
-  >(eventName: EventName, data?: EventData): Promise<boolean> {
+  >(
+    eventName: EventName,
+    data?: EventData,
+    options: { awaitAllSubscribersFinish?: boolean } = {
+      awaitAllSubscribersFinish: true,
+    }
+  ): Promise<boolean> {
     try {
       const subscribersOfThisEvent = this.subscribers[eventName as string];
       let subscribersAmount: number;
@@ -91,7 +100,9 @@ export class PubSub<Events> {
       }
 
       for (let subscriber in subscribersOfThisEvent) {
-        await subscribersOfThisEvent[subscriber].eventHandler(data);
+        if (options?.awaitAllSubscribersFinish) {
+          await subscribersOfThisEvent[subscriber].eventHandler(data);
+        } else subscribersOfThisEvent[subscriber].eventHandler(data);
 
         if (subscribersOfThisEvent[subscriber].forOneEventOnly) {
           delete subscribersOfThisEvent[subscriber];
@@ -125,7 +136,7 @@ Error`,
     EventData extends Events[EventName]
   >(
     eventName: EventName,
-    eventHandler: (data: EventData) => void
+    eventHandler: SyncEventHandler<EventData> | AsyncEventHandler<EventData>
   ): UnsubscribeFunction {
     let subscribersOfThisEvent = this.subscribers[eventName as string];
     let newSubscriberIndex: number;
@@ -207,7 +218,7 @@ subscribers from memory`
   /**
    * Checks if given event has any active subscribers/listeners
    * @param eventName
-   * 
+   *
    * @returns boolean indicating if given event has any active subscribers
    */
   hasSubscribers<EventName extends keyof Events>(
@@ -224,10 +235,10 @@ subscribers from memory`
    * Counts all subscribers that subscribe given specific event
    * It starts counting from 1. 0 means no active subscribers
    * @param eventName name of the event they subscribe
-   * 
+   *
    * @returns amount of subscribers
    */
-   countSubscribers<EventName extends keyof Events>(
+  countSubscribers<EventName extends keyof Events>(
     eventName: EventName
   ): number {
     return Object.keys(this.subscribers[eventName as string]).length;

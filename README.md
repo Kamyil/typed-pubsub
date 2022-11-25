@@ -54,7 +54,7 @@ const Events = {
 }
 ```
 
-3. Create `PubSub` instance with `events` passed
+3. Create `PubSub` instance with `Events` passed
 
 ```ts
 // 1
@@ -262,19 +262,35 @@ to be completely sure that your `publish()` call will be noticed by all subscrib
 and all of those subscribers will perform their callbacks before code runs further.
 `publish()` method has it's async equivalent named `publishAsync()`
 It also accepts eventName and data as it's arguments, but in opposite to normal synchronous `publish()` it also returns
-boolean, that indicates if publish finished successfully, which means - it found all of it's subscribers and all of them
-finished their callbacks
+boolean, that indicates if publish finished successfully, which means - it found all of it's subscribers and (by default, but can be disabled) all of them
+finished their callbacks.
+
+**However!**, if you don't want to await for all subscribers to finish their callbacks, you can disable it by passing
+`awaitAllSubscribersFinish` as `false` in `options` param
 **Example:**
 
 ```ts
 async function onDataFetched(data) {
+  // It will return true or false when all subscribers receive message and all of them finish their callbacks
   const isDataPublished = await pubSub.publishAsync('data:fetched', data);
   if (isDataPublished) {
     await doSomethingAfterThePublishIsComplete();
     await doSomethingElseAfterThePublishIsComplete();
   }
 }
+```
 
+```ts
+async function onDataFetched(data) {
+  // It will return true or false when all subscribers receive message but may not all of them finish their callbacks
+  const isDataPublished = await pubSub.publishAsync('data:fetched', data, { 
+    awaitAllSubscribersFinish: false 
+  });
+  if (isDataPublished) {
+    await doSomethingAfterThePublishIsComplete();
+    await doSomethingElseAfterThePublishIsComplete();
+  }
+}
 ```
 
 ## I want to extend the functionality of it
