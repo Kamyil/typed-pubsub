@@ -1,7 +1,7 @@
 {
-  "name": "super-typed-pubsub",
+  "name": "pubsub-super-typed",
   "private": false,
-  "version": "1.6.1",
+  "version": "1.6.2",
   "author": "Kamil Kseń",
   "license": "MIT",
   "type": "module",
