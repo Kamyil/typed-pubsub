@@ -60,7 +60,7 @@ const Events = {
 // 1
 import { PubSub } from '@kamyil/typed-pubsub';
 // 2
-const events = {
+const Events = {
   'user:registered': { firstName: '', lastName: '', age: 22 },
   'age:changed': 40,
   'firstName:changed': 'Matt',
